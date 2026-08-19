@@ -70,8 +70,10 @@ in a local clone, and on Modrinth and Hangar alike. `brand/ICON_PLAN.md` §1 rec
 full argument, including why the obvious objection to copying — that copies drift —
 stops applying once a pipeline re-syncs them.
 
-To receive the bundle, a repo adds itself to `.github/sync-assets.json` in `brand`. That
-is the entire onboarding step.
+To receive the bundle, a repo adds itself to `.github/sync-assets.json` in `brand` **and**
+has the `ninja6-asset-sync` GitHub App installed on it. Both are required; the App install
+lives in org settings and leaves no trace in any repository, which is exactly why it gets
+forgotten.
 
 ## 4. Files that cannot be inherited — `templates/`
 
