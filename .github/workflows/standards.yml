@@ -48,20 +48,41 @@ jobs:
           fetch-depth: 0
           path: repo
 
-      # The register and the checker. Pinned to `job_workflow_sha`, the exact commit of
-      # THIS workflow file, so the rules a repository is judged against are the ones
-      # that shipped with the checker rather than whatever main happens to hold mid-PR.
+      # Which ref of this repository to read the register and the checker from.
       #
-      # That context is empty when this repository runs the workflow on its own
-      # `pull_request` trigger, because nothing called it. In that case the checkout
-      # above is already this repository at the PR head - so it is reused, and a PR that
-      # edits the register is checked against its own version rather than against main.
+      # `github.workflow_ref` is the reference the CALLER pinned, in the form
+      # `Ninja6-MC/.github/.github/workflows/standards.yml@refs/heads/main`. Taking the
+      # part after the last `@` means a caller pinning `@main` is judged against main,
+      # and a caller that ever pins a tag is judged against that tag. The rules and the
+      # checker therefore always match the workflow version that is running.
+      #
+      # NOT `github.job_workflow_sha`, which would be the more precise answer and is
+      # documented, but is EMPTY in this context - verified the hard way: the register
+      # checkout silently skipped and the run failed with `Checker not found`.
+      - name: Resolve the register ref
+        if: github.repository != 'Ninja6-MC/.github'
+        id: register
+        env:
+          WORKFLOW_REF: ${{ github.workflow_ref }}
+        run: |
+          REF="${WORKFLOW_REF##*@}"
+          if [ -z "$REF" ] || [ "$REF" = "$WORKFLOW_REF" ]; then
+            echo "::error::Could not parse a ref out of workflow_ref '$WORKFLOW_REF'."
+            exit 1
+          fi
+          echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          echo "Register ref: $REF"
+
+      # Skipped when this repository is the one under test: nothing called the workflow,
+      # so the checkout above is already this repository at the PR head. Reusing it means
+      # a pull request that edits the register is checked against its own version rather
+      # than against main, which is what you want when the register itself is the change.
       - name: Checkout the register
-        if: github.job_workflow_sha != ''
+        if: github.repository != 'Ninja6-MC/.github'
         uses: actions/checkout@v4
         with:
           repository: Ninja6-MC/.github
-          ref: ${{ github.job_workflow_sha }}
+          ref: ${{ steps.register.outputs.ref }}
           path: register
 
       - name: Check standards
@@ -71,13 +92,15 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          if [ -n "${{ github.job_workflow_sha }}" ]; then
-            REGISTER_DIR="$GITHUB_WORKSPACE/register/standards"
-            CHECKER="$GITHUB_WORKSPACE/register/scripts/check-standards.py"
+          # Same condition as the two steps above, and it has to stay in step with them:
+          # `register/` exists only when this repository is not the one under test.
+          if [ "$REPO" = "Ninja6-MC/.github" ]; then
+            ROOT="$GITHUB_WORKSPACE/repo"
           else
-            REGISTER_DIR="$GITHUB_WORKSPACE/repo/standards"
-            CHECKER="$GITHUB_WORKSPACE/repo/scripts/check-standards.py"
+            ROOT="$GITHUB_WORKSPACE/register"
           fi
+          REGISTER_DIR="$ROOT/standards"
+          CHECKER="$ROOT/scripts/check-standards.py"
           export REGISTER_DIR
 
           # Fail loudly rather than skipping. A checker that silently does not run is
