@@ -17,16 +17,23 @@ one here. Nothing is configured; the fallback is the mechanism.
 | `CONTRIBUTING.md` | any repo without its own |
 | `SECURITY.md` | any repo without its own |
 | `CODE_OF_CONDUCT.md` | any repo without its own |
-| `.github/ISSUE_TEMPLATE/*` | any repo without its own |
+| `.github/ISSUE_TEMPLATE/` | any repo with **no** `ISSUE_TEMPLATE/` of its own — see below |
 | `.github/PULL_REQUEST_TEMPLATE.md` | any repo without its own |
 | `profile/README.md` | nothing — it *is* the org profile page |
 
-Two limits worth knowing before relying on this:
+Three limits worth knowing before relying on this:
 
-* **Public repos only.** A private repo inherits nothing from a public `.github`.
+* **Public repos only.** A private repo inherits nothing from a public `.github`, so
+  `brand` inherits none of this.
 * **A local file always wins, per file.** It is not a merge. `SpiralGenesis` defines
   its own `CONTRIBUTING.md` (Gradle, Java 21, `./gradlew test`) and keeps it; it still
   inherits `CODE_OF_CONDUCT.md`, which it does not define.
+* **Issue templates are the exception — they fall back per *directory*, not per file.**
+  A repo that defines even one template of its own inherits *none* of the org ones,
+  `config.yml` included. `SpiralGenesis` and `SessionPulse` both ship two templates and
+  no `config.yml`, so neither one gets `blank_issues_enabled: false` or the security
+  contact link, and blank issues stay enabled for both. Each needs its own `config.yml`;
+  there is no way to supply one from here.
 
 So the defaults here mostly benefit the *next* repo. That is the point of writing them
 before there is a next repo.
@@ -43,7 +50,7 @@ on: pull_request
 
 jobs:
   dco:
-    uses: Ninja6-MC/.github/workflows/dco.yml@main
+    uses: Ninja6-MC/.github/.github/workflows/dco.yml@main
 ```
 
 That three-line stub replaces ~60 lines of duplicated shell, and a fix to the check
@@ -82,8 +89,8 @@ new repo by hand:
 
 | File | Why it cannot be inherited |
 |---|---|
-| `templates/.editorconfig` | read by editors from the working tree |
-| `templates/.gitattributes` | read by git from the working tree |
+| `templates/editorconfig.template` | read by editors from the working tree; rename on copy |
+| `templates/gitattributes.template` | read by git from the working tree; rename on copy |
 | `.gitignore` | too project-specific to template — start from the build system's |
 | `CHANGELOG.md` | per-repo content by definition |
 | `RELEASE_PROCESS.md` | varies with how the repo publishes |
