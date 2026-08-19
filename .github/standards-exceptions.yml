@@ -1,0 +1,20 @@
+# Standards exceptions for Ninja6-MC/.github
+#
+# Schema and worked example: standards/README.md section 3.
+# An empty `exceptions` list is a statement that this repository conforms; the file is
+# required either way (N6-REPO-05).
+
+repo: .github
+
+exceptions:
+  - rule: N6-CI-05
+    type: transitional
+    reason: >
+      `main` is not protected on this repository. It can be — the repository is public, so
+      nothing on the Free plan prevents it — but protection has not been applied yet.
+      This is the highest-priority of the organisation's unprotected repositories: it
+      hosts the reusable DCO workflow that gates every other repository's pull requests,
+      and the ninja6-asset-sync GitHub App holds `contents: write` here.
+    approved_by: bharathasl74185@gmail.com
+    approved_on: 2026-08-19
+    revisit_by: 2026-09-19
