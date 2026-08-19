@@ -50,43 +50,39 @@ jobs:
 
       # Which ref of THIS repository to read the register and the checker from.
       #
-      # Two contexts have already been tried here and both were wrong, so this step
-      # prints what it saw before deciding - a third wrong guess should cost one run,
-      # not one merge:
+      # `refs/heads/main` is the answer, and it is reached by fallback rather than by
+      # any context variable, because ALL THREE candidates turned out to be unusable.
+      # Measured, not assumed - each of these cost a merge to discover:
       #
-      #   github.job_workflow_sha  documented, EMPTY in this context
-      #   github.workflow_ref      populated, but describes the CALLER's workflow -
-      #                            it resolved to `refs/pull/24/merge`, the caller's
-      #                            own pull request, not this file
-      #   github.job_workflow_ref  the reusable workflow's own reference, which is the
-      #                            one actually wanted
+      #   github.job_workflow_sha  documented; empty in this context
+      #   github.workflow_ref      populated, but describes the CALLER's workflow - it
+      #                            resolved to `refs/pull/24/merge`, the caller's own
+      #                            pull request, and the checkout failed with
+      #                            `couldn't find remote ref`
+      #   github.job_workflow_ref  also empty - logged as `job_workflow_ref = ''` on the
+      #                            first green run
       #
-      # `job_workflow_ref` carries what the caller pinned:
-      # `Ninja6-MC/.github/.github/workflows/standards.yml@refs/heads/main`. Taking the
-      # part after the last `@` means a caller on `@main` is judged against main and a
-      # caller that ever pins a tag is judged against that tag, so the rules and the
-      # checker always match the workflow version running.
+      # So main is the working path, not a degraded one, and it is correct for every
+      # caller today: every stub pins `@main`, and the register a repository is judged
+      # against should be the one the workflow it called was published from.
       #
-      # If it is ever empty too, fall back to main with a warning rather than failing.
-      # Every stub pins `@main`, so the fallback is right in practice - and a check that
-      # refuses to run is worse than one running against a slightly newer register.
+      # `job_workflow_ref` is still read first, so that if GitHub ever starts populating
+      # it - or if a caller pins a tag - the exact ref is used automatically. That is an
+      # optimisation, not the mechanism. It does not warn when it is empty, because a
+      # warning that fires on every single run is noise, and noise is how real warnings
+      # get ignored.
       - name: Resolve the register ref
         if: github.repository != 'Ninja6-MC/.github'
         id: register
         env:
           JOB_WORKFLOW_REF: ${{ github.job_workflow_ref }}
-          WORKFLOW_REF: ${{ github.workflow_ref }}
         run: |
-          echo "job_workflow_ref = '$JOB_WORKFLOW_REF'"
-          echo "workflow_ref     = '$WORKFLOW_REF'   (the caller's, not this file's)"
-
           if [ -n "$JOB_WORKFLOW_REF" ] && [ "${JOB_WORKFLOW_REF##*@}" != "$JOB_WORKFLOW_REF" ]; then
             REF="${JOB_WORKFLOW_REF##*@}"
+            echo "Pinned from job_workflow_ref."
           else
-            echo "::warning::github.job_workflow_ref is empty or has no '@'; falling back"
-            echo "::warning::to refs/heads/main. Every stub pins @main, so this is right"
-            echo "::warning::in practice, but the pin is no longer exact."
             REF="refs/heads/main"
+            echo "job_workflow_ref is empty; using main, which is what every stub pins."
           fi
 
           echo "ref=$REF" >> "$GITHUB_OUTPUT"
