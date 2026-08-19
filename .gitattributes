@@ -14,6 +14,13 @@
 # exists to spread (N6-CI-04, N6-REPO-04).
 *.template      text eol=lf
 
+# Two files that no extension-based pattern reaches. `LICENSE` is extensionless by
+# convention, and a pattern for `.gitattributes` has to name it literally. Both still
+# checked out CRLF with every pin above in place - verified by cloning with
+# core.autocrlf=true and reading the bytes, not by grepping for CR.
+LICENSE         text eol=lf
+.gitattributes  text eol=lf
+
 # Never apply end-of-line conversion to binaries. Without this, git would try to
 # "fix" the endings inside a PNG and corrupt it.
 *.png           binary
