@@ -29,6 +29,21 @@ name: Scorecard
 # object sha is the tag object, not the commit, and pinning to that fails - so each was
 # dereferenced to its commit before being written down.
 
+# NO workflow-level `permissions:` here, and that is load-bearing rather than an
+# omission. A `permissions: read-all` at this level CAPS the job below, which asks
+# for security-events: write and id-token: write - and when this workflow is CALLED,
+# exceeding that cap is a hard `startup_failure` with no job, no annotation and no
+# message anywhere in the API. Verified by bisection: dropping it here fixed it,
+# dropping it in the caller did not.
+#
+# It does not fail this way when the workflow runs on its own triggers, because a
+# job's permissions override the workflow's for a normal run. So the standalone run
+# on .github passed while every caller failed - which is exactly the shape of bug
+# that reaches main.
+#
+# The caller keeps its own top-level `permissions: read-all`. That is the OSSF
+# recommended pattern and it is not what broke this.
+
 on:
   workflow_call:
 
@@ -40,8 +55,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-
-permissions: read-all
 
 jobs:
   analysis:
