@@ -6,16 +6,10 @@
 
 repo: .github
 
-exceptions:
-  - rule: N6-CI-05
-    type: transitional
-    reason: >
-      `main` is now protected: a pull request is required, linear history is enforced,
-      administrators are included, and force-push and deletion are blocked. What is still
-      missing is the "required status checks must pass" half of the rule — no check names
-      are listed, because the standards workflow does not exist yet and a required check
-      that never reports blocks every pull request permanently (N6-CI-03).
-      The list gets populated once that workflow ships and its check names are stable.
-    approved_by: bharathasl74185@gmail.com
-    approved_on: 2026-08-19
-    revisit_by: 2026-09-19
+# This repository has no exceptions: it conforms to every rule in the register.
+#
+# The transitional N6-CI-05 entry that lived here is closed. It existed because `main`
+# was protected without any required status checks - the standards workflow did not exist
+# yet, and requiring a check that never reports blocks every pull request forever
+# (N6-CI-03). Both checks now report and are required.
+exceptions: []

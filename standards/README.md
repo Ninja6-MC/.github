@@ -64,10 +64,10 @@ is real or the address reachable.
 
 | ID | Rule | Normative text | Enforcement |
 | :--- | :--- | :--- | :--- |
-| `N6-CI-01` | Every repository runs the shared DCO check by calling the reusable workflow, not by keeping a local copy | [`ci.md`](ci.md) | reviewed³ |
+| `N6-CI-01` | Every repository runs the shared DCO check by calling the reusable workflow, not by keeping a local copy | [`ci.md`](ci.md) | automatic³ |
 | `N6-CI-02` | Reusable workflow references spell `.github` twice | [`ci.md`](ci.md) | documented |
 | `N6-CI-03` | A required status check must name a check that actually reports | [`ci.md`](ci.md) | documented |
-| `N6-CI-04` | Workflow YAML is committed with LF endings | [`repo-layout.md`](repo-layout.md) | reviewed³ |
+| `N6-CI-04` | Workflow YAML is committed with LF endings | [`repo-layout.md`](repo-layout.md) | automatic³ |
 | `N6-CI-05` | Public repositories protect `main`: pull request required, CI green, linear history, administrators included | [`ci.md`](ci.md) | reviewed |
 
 ### Repository contents
@@ -75,31 +75,25 @@ is real or the address reachable.
 | ID | Rule | Normative text | Enforcement |
 | :--- | :--- | :--- | :--- |
 | `N6-REPO-01` | A repository relies on org-inherited health files unless it genuinely needs its own | [`repo-layout.md`](repo-layout.md) | reviewed |
-| `N6-REPO-02` | A repository that defines **any** file in `.github/ISSUE_TEMPLATE/` must also define `config.yml` | [`repo-layout.md`](repo-layout.md) | reviewed³ |
-| `N6-REPO-03` | `assets/` is delivered by the sync pipeline and is never hand-edited | [`repo-layout.md`](repo-layout.md) | reviewed³ |
+| `N6-REPO-02` | A repository that defines **any** file in `.github/ISSUE_TEMPLATE/` must also define `config.yml` | [`repo-layout.md`](repo-layout.md) | automatic³ |
+| `N6-REPO-03` | `assets/` is delivered by the sync pipeline and is never hand-edited | [`repo-layout.md`](repo-layout.md) | automatic³ |
 | `N6-REPO-04` | `.editorconfig` and `.gitattributes` come from [`templates/`](../templates) | [`repo-layout.md`](repo-layout.md) | reviewed |
-| `N6-REPO-05` | Every repository carries a `standards-exceptions.yml`, even when it has no exceptions | this file, §3 | reviewed³ |
+| `N6-REPO-05` | Every repository carries a `standards-exceptions.yml`, even when it has no exceptions | this file, §3 | automatic³ |
 
 ³ Checked by the `Standards` workflow in this repository
 ([`.github/workflows/standards.yml`](../.github/workflows/standards.yml), logic in
 [`scripts/check-standards.py`](../scripts/check-standards.py)), which every adopted
-repository calls through a stub. The check **reports but does not block**: it is in no
-required-status-check list yet, because `N6-CI-03` requires a check name to be stable
-before it is required, and these names are only stable once every stub has landed. So a
-human still has to look at a red tick. They become **automatic** when the names are added
-to the required lists. The register says what is true today, not what is planned.
+repository calls through a stub, **and required on every repository whose `main` can be
+protected** — so a violation blocks the merge rather than waiting for a reviewer to
+notice it.
+
+`brand` is the exception, and it is already recorded as one: the check runs and reports
+there, but a private repository on the Free plan cannot have branch protection at all, so
+nothing can be required. That is its `permanent` `N6-BRANCH-01` entry.
 
 The workflow is exception-aware: a failure whose rule has an entry in the repository's
 `standards-exceptions.yml` is reported as a notice and does not fail the run. `N6-REPO-05`
 is the exception to that — a malformed exceptions file cannot excuse itself.
-
-### Commands, releases
-
-`N6-CMD-*` and `N6-REL-*` are **reserved and not yet assigned.** Their source material
-exists but is not yet public: command and permission naming currently lives in the private
-`brand` repository, and release process lives in each repository's own
-`RELEASE_PROCESS.md`. Both are scheduled to be migrated here. Until they are, do not cite
-an identifier from either area — there is nothing behind it yet.
 
 ---
 
