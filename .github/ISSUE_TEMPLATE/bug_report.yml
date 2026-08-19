@@ -1,8 +1,13 @@
 # Org-wide default. Inherited by any Ninja6-MC repo without its own ISSUE_TEMPLATE/.
 #
-# Deliberately generic: this file is also what `brand` would inherit, where "server
-# software" is meaningless. Plugin repos should keep their own template with the
-# required version and server fields - SpiralGenesis and SessionPulse both do.
+# Deliberately generic, because it has to serve any repo, not just a plugin - "server
+# software" is meaningless for a docs or tooling repo. (It is NOT inherited by `brand`:
+# that repo is private, and inheritance from a public .github reaches public repos only.)
+#
+# Note the fallback here is per-DIRECTORY, not per-file: a repo defining any template of
+# its own inherits none of these, including config.yml. Plugin repos keep their own
+# templates - SpiralGenesis and SessionPulse both do - so they must carry their own
+# config.yml too, or blank issues stay enabled for them.
 name: Bug Report
 description: Report a bug or unintended behavior
 title: "[Bug]: "

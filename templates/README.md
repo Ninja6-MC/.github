@@ -4,10 +4,17 @@ Files a new repository still has to **copy**, because GitHub has no inheritance
 mechanism for them. Everything in the parent directory is inherited automatically and
 must not be copied.
 
+They carry a `.template` suffix rather than their real names on purpose. A real
+`.gitattributes` sitting here would apply to this directory, and a real
+`.editorconfig` starting with `root = true` would cut off editorconfig resolution
+for everything under it. Both are harmless while the directory holds nothing they
+match, and stop being harmless the moment someone adds a sample file. **Rename on
+copy.**
+
 | File | Copy to | Notes |
 |---|---|---|
-| `.editorconfig` | repo root | Unchanged. 4-space indent, LF, UTF-8; 2 for YAML. |
-| `.gitattributes` | repo root | Drop the `gradlew*` lines in a non-Gradle repo; keep the rest. |
+| `editorconfig.template` | repo root, **renamed to `.editorconfig`** | Unchanged otherwise. 4-space indent, LF, UTF-8; 2 for YAML. |
+| `gitattributes.template` | repo root, **renamed to `.gitattributes`** | Drop the `gradlew*` lines in a non-Gradle repo; keep the rest. |
 | `dco-stub.yml` | `.github/workflows/dco.yml` | Calls the reusable check. Do not copy the check itself. |
 
 Not templated, and why:

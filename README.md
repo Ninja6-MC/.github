@@ -17,16 +17,23 @@ one here. Nothing is configured; the fallback is the mechanism.
 | `CONTRIBUTING.md` | any repo without its own |
 | `SECURITY.md` | any repo without its own |
 | `CODE_OF_CONDUCT.md` | any repo without its own |
-| `.github/ISSUE_TEMPLATE/*` | any repo without its own |
+| `.github/ISSUE_TEMPLATE/` | any repo with **no** `ISSUE_TEMPLATE/` of its own — see below |
 | `.github/PULL_REQUEST_TEMPLATE.md` | any repo without its own |
 | `profile/README.md` | nothing — it *is* the org profile page |
 
-Two limits worth knowing before relying on this:
+Three limits worth knowing before relying on this:
 
-* **Public repos only.** A private repo inherits nothing from a public `.github`.
+* **Public repos only.** A private repo inherits nothing from a public `.github`, so
+  `brand` inherits none of this.
 * **A local file always wins, per file.** It is not a merge. `SpiralGenesis` defines
   its own `CONTRIBUTING.md` (Gradle, Java 21, `./gradlew test`) and keeps it; it still
   inherits `CODE_OF_CONDUCT.md`, which it does not define.
+* **Issue templates are the exception — they fall back per *directory*, not per file.**
+  A repo that defines even one template of its own inherits *none* of the org ones,
+  `config.yml` included. `SpiralGenesis` and `SessionPulse` both ship two templates and
+  no `config.yml`, so neither one gets `blank_issues_enabled: false` or the security
+  contact link, and blank issues stay enabled for both. Each needs its own `config.yml`;
+  there is no way to supply one from here.
 
 So the defaults here mostly benefit the *next* repo. That is the point of writing them
 before there is a next repo.
