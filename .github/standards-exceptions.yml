@@ -10,11 +10,12 @@ exceptions:
   - rule: N6-CI-05
     type: transitional
     reason: >
-      `main` is not protected on this repository. It can be — the repository is public, so
-      nothing on the Free plan prevents it — but protection has not been applied yet.
-      This is the highest-priority of the organisation's unprotected repositories: it
-      hosts the reusable DCO workflow that gates every other repository's pull requests,
-      and the ninja6-asset-sync GitHub App holds `contents: write` here.
+      `main` is now protected: a pull request is required, linear history is enforced,
+      administrators are included, and force-push and deletion are blocked. What is still
+      missing is the "required status checks must pass" half of the rule — no check names
+      are listed, because the standards workflow does not exist yet and a required check
+      that never reports blocks every pull request permanently (N6-CI-03).
+      The list gets populated once that workflow ships and its check names are stable.
     approved_by: bharathasl74185@gmail.com
     approved_on: 2026-08-19
     revisit_by: 2026-09-19
