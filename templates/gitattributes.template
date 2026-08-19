@@ -23,6 +23,12 @@ gradlew.bat     text eol=crlf
 # checkout and the committed artwork drifts from what the script produces, which the
 # icon drift gate then fails on.
 *.svg           text eol=lf
+
+# Workflow YAML is read by GitHub, and Markdown is read by everyone. Both are text
+# and both belong pinned, or a Windows clone rewrites them on checkout.
+*.yml           text eol=lf
+*.yaml          text eol=lf
+*.md            text eol=lf
 *.mjs           text eol=lf
 
 # Never apply end-of-line conversion to binaries.
