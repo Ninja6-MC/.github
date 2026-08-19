@@ -89,8 +89,8 @@ new repo by hand:
 
 | File | Why it cannot be inherited |
 |---|---|
-| `templates/.editorconfig` | read by editors from the working tree |
-| `templates/.gitattributes` | read by git from the working tree |
+| `templates/editorconfig.template` | read by editors from the working tree; rename on copy |
+| `templates/gitattributes.template` | read by git from the working tree; rename on copy |
 | `.gitignore` | too project-specific to template — start from the build system's |
 | `CHANGELOG.md` | per-repo content by definition |
 | `RELEASE_PROCESS.md` | varies with how the repo publishes |
