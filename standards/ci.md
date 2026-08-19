@@ -65,6 +65,29 @@ job: a check reported as `Check Sign-off` by a local workflow is reported as
 **Therefore: adopt the stub before adding the check to a required list, or change both
 together.** Doing it in the wrong order blocks every open pull request on the repository.
 
+### What is required today
+
+Recorded here because `N6-CI-03` is exactly the rule that gets this wrong, and because the
+two repositories need **different strings for the same check**:
+
+| Repository | Required contexts |
+| :--- | :--- |
+| `SpiralGenesis` | `Build and Test`, `dco / Check Sign-off`, `standards / Check Standards` |
+| `.github` | `Check Sign-off`, `Check Standards` |
+| `brand` | none possible — private on Free |
+| `SessionPulse` | none yet — parked |
+
+`.github` reports both names **unprefixed** because it *hosts* the two reusable workflows
+rather than calling them, so there is no calling job to prefix with. Every other
+repository calls them through a stub and gets `<job-id> / <job-name>`. Copying one
+repository's list to the other blocks every pull request on a name that will never report.
+
+Every name above was read off a real run before being required, not predicted.
+
+**Scorecard is deliberately absent.** It scores a repository rather than a diff, has no
+`pull_request` trigger, and therefore reports no check name at all on a pull request.
+There is nothing to require.
+
 Verify what is actually required, and what actually reported, before changing either:
 
 ```bash
