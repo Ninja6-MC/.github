@@ -67,7 +67,7 @@ is real or the address reachable.
 | `N6-CI-01` | Every repository runs the shared DCO check by calling the reusable workflow, not by keeping a local copy | [`ci.md`](ci.md) | reviewed³ |
 | `N6-CI-02` | Reusable workflow references spell `.github` twice | [`ci.md`](ci.md) | documented |
 | `N6-CI-03` | A required status check must name a check that actually reports | [`ci.md`](ci.md) | documented |
-| `N6-CI-04` | Workflow YAML is committed with LF endings | [`repo-layout.md`](repo-layout.md) | documented |
+| `N6-CI-04` | Workflow YAML is committed with LF endings | [`repo-layout.md`](repo-layout.md) | reviewed³ |
 | `N6-CI-05` | Public repositories protect `main`: pull request required, CI green, linear history, administrators included | [`ci.md`](ci.md) | reviewed |
 
 ### Repository contents
@@ -80,9 +80,18 @@ is real or the address reachable.
 | `N6-REPO-04` | `.editorconfig` and `.gitattributes` come from [`templates/`](../templates) | [`repo-layout.md`](repo-layout.md) | reviewed |
 | `N6-REPO-05` | Every repository carries a `standards-exceptions.yml`, even when it has no exceptions | this file, §3 | reviewed³ |
 
-³ Mechanically checkable, but no check exists yet. These become **automatic** when the
-standards workflow lands; until then they are enforced at review. The register says what
-is true today, not what is planned.
+³ Checked by the `Standards` workflow in this repository
+([`.github/workflows/standards.yml`](../.github/workflows/standards.yml), logic in
+[`scripts/check-standards.py`](../scripts/check-standards.py)), which every adopted
+repository calls through a stub. The check **reports but does not block**: it is in no
+required-status-check list yet, because `N6-CI-03` requires a check name to be stable
+before it is required, and these names are only stable once every stub has landed. So a
+human still has to look at a red tick. They become **automatic** when the names are added
+to the required lists. The register says what is true today, not what is planned.
+
+The workflow is exception-aware: a failure whose rule has an entry in the repository's
+`standards-exceptions.yml` is reported as a notice and does not fail the run. `N6-REPO-05`
+is the exception to that — a malformed exceptions file cannot excuse itself.
 
 ### Commands, releases
 

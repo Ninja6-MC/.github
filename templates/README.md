@@ -16,6 +16,7 @@ copy.**
 | `editorconfig.template` | repo root, **renamed to `.editorconfig`** | Unchanged otherwise. 4-space indent, LF, UTF-8; 2 for YAML. |
 | `gitattributes.template` | repo root, **renamed to `.gitattributes`** | Drop the `gradlew*` lines in a non-Gradle repo; keep the rest. |
 | `dco-stub.yml` | `.github/workflows/dco.yml` | Calls the reusable check. Do not copy the check itself. |
+| `standards-stub.yml` | `.github/workflows/standards.yml` | Calls the reusable standards check. Add it when the repo adopts the register, not before. |
 
 Not templated, and why:
 
