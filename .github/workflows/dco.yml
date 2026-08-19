@@ -11,7 +11,7 @@ name: DCO
 #     on: pull_request
 #     jobs:
 #       dco:
-#         uses: Ninja6-MC/.github/workflows/dco.yml@main
+#         uses: Ninja6-MC/.github/.github/workflows/dco.yml@main   # yes, twice
 #
 # A called workflow inherits the caller's event payload, so github.event.pull_request
 # below refers to the caller's PR, not to anything in this repo. That is why no inputs

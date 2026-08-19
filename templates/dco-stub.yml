@@ -4,6 +4,11 @@ name: DCO
 
 on: pull_request
 
+# NOTE the doubled `.github`. A reusable workflow is referenced as
+# {owner}/{repo}/.github/workflows/{file}@{ref} - and here the repo is itself named
+# `.github`, so the segment appears twice. Written once it resolves to the path
+# `workflows/dco.yml`, which is not a valid workflow location, and the run fails at
+# startup with no jobs and no useful error.
 jobs:
   dco:
-    uses: Ninja6-MC/.github/workflows/dco.yml@main
+    uses: Ninja6-MC/.github/.github/workflows/dco.yml@main

@@ -50,7 +50,7 @@ on: pull_request
 
 jobs:
   dco:
-    uses: Ninja6-MC/.github/workflows/dco.yml@main
+    uses: Ninja6-MC/.github/.github/workflows/dco.yml@main
 ```
 
 That three-line stub replaces ~60 lines of duplicated shell, and a fix to the check
