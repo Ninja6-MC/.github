@@ -7,6 +7,13 @@
 *.md            text eol=lf
 *.editorconfig  text eol=lf
 
+# templates/ holds files a new repo copies by hand. They carry a `.template` suffix so
+# they do not apply to this directory, which also means none of the pins above match
+# them. Without this line a Windows clone checks them out as CRLF, and copying one
+# carries CRLF into the repo that copied it - defeating the very rule the template
+# exists to spread (N6-CI-04, N6-REPO-04).
+*.template      text eol=lf
+
 # Never apply end-of-line conversion to binaries. Without this, git would try to
 # "fix" the endings inside a PNG and corrupt it.
 *.png           binary
