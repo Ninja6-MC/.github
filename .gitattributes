@@ -6,6 +6,7 @@
 *.yaml          text eol=lf
 *.md            text eol=lf
 *.editorconfig  text eol=lf
+*.py            text eol=lf
 
 # templates/ holds files a new repo copies by hand. They carry a `.template` suffix so
 # they do not apply to this directory, which also means none of the pins above match

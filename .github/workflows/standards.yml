@@ -1,0 +1,90 @@
+name: Standards
+
+# Checks a repository against the mechanically-checkable rules in standards/. The logic
+# lives in scripts/check-standards.py in this repository, not inline here, so that it can
+# be run locally against a clone before it is ever pushed:
+#
+#     REGISTER_DIR=../.github/standards REPO=Ninja6-MC/<repo> python3 check-standards.py
+#
+# This is a REUSABLE workflow. Other Ninja6-MC repos call it rather than copying it, with
+# a stub of their own - canonical copy in templates/standards-stub.yml:
+#
+#     name: Standards
+#     on: pull_request
+#     jobs:
+#       standards:
+#         uses: Ninja6-MC/.github/.github/workflows/standards.yml@main   # yes, twice
+#
+# NOT in a required-status-check list yet, deliberately. N6-CI-03: a required check must
+# name a check that actually reports, and the name here (`standards / Check Standards`
+# from a stub, `Check Standards` from this repository's own pull_request run) is only
+# stable once the stub has landed everywhere. Adding it to a required list is a separate
+# change - see the register's adoption notes.
+#
+# `SessionPulse` deliberately has no stub. It is parked, and it fails five of these
+# checks; wiring it up would be a piecemeal change to a repository that is supposed to
+# get one full pass instead.
+
+on:
+  workflow_call:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check Standards
+    runs-on: ubuntu-latest
+
+    steps:
+      # The repository under test. A called workflow inherits the caller's event
+      # payload, so this checks out the CALLER, which is the whole point.
+      - name: Checkout the repository under test
+        uses: actions/checkout@v4
+        with:
+          # N6-REPO-03 walks base..head to find who touched assets/, so the full
+          # history is needed - a shallow clone has no merge base to walk back to.
+          fetch-depth: 0
+          path: repo
+
+      # The register and the checker. Pinned to `job_workflow_sha`, the exact commit of
+      # THIS workflow file, so the rules a repository is judged against are the ones
+      # that shipped with the checker rather than whatever main happens to hold mid-PR.
+      #
+      # That context is empty when this repository runs the workflow on its own
+      # `pull_request` trigger, because nothing called it. In that case the checkout
+      # above is already this repository at the PR head - so it is reused, and a PR that
+      # edits the register is checked against its own version rather than against main.
+      - name: Checkout the register
+        if: github.job_workflow_sha != ''
+        uses: actions/checkout@v4
+        with:
+          repository: Ninja6-MC/.github
+          ref: ${{ github.job_workflow_sha }}
+          path: register
+
+      - name: Check standards
+        working-directory: repo
+        env:
+          REPO: ${{ github.repository }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ -n "${{ github.job_workflow_sha }}" ]; then
+            REGISTER_DIR="$GITHUB_WORKSPACE/register/standards"
+            CHECKER="$GITHUB_WORKSPACE/register/scripts/check-standards.py"
+          else
+            REGISTER_DIR="$GITHUB_WORKSPACE/repo/standards"
+            CHECKER="$GITHUB_WORKSPACE/repo/scripts/check-standards.py"
+          fi
+          export REGISTER_DIR
+
+          # Fail loudly rather than skipping. A checker that silently does not run is
+          # worse than no checker, because the green tick says the opposite.
+          if [ ! -f "$CHECKER" ]; then
+            echo "::error::Checker not found at $CHECKER"
+            exit 1
+          fi
+
+          python3 "$CHECKER"
