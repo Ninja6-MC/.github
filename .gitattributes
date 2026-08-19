@@ -1,0 +1,14 @@
+# This repo holds no scripts of its own, but it does hold workflow YAML that GitHub
+# reads, and PNGs delivered by the Sync Assets pipeline in `brand`. Pinning endings
+# keeps a clone with core.autocrlf=true (the Git for Windows default) from rewriting
+# them, which would show every synced file as modified on a clean checkout.
+*.yml           text eol=lf
+*.yaml          text eol=lf
+*.md            text eol=lf
+*.editorconfig  text eol=lf
+
+# Never apply end-of-line conversion to binaries. Without this, git would try to
+# "fix" the endings inside a PNG and corrupt it.
+*.png           binary
+*.jpg           binary
+*.ico           binary

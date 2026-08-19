@@ -1,0 +1,34 @@
+# Org-wide default. Inherited by any Ninja6-MC repo without its own ISSUE_TEMPLATE/.
+name: Feature Request
+description: Suggest a new feature or enhancement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve this project.
+
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature Description
+      description: What you are proposing, concretely.
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case / Problem Addressed
+      description: What problem does this solve, and for whom? Describe the situation, not just the fix.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Workarounds you have tried, or other designs you rejected and why.
+    validations:
+      required: false

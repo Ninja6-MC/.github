@@ -1,0 +1,64 @@
+# Org-wide default. Inherited by any Ninja6-MC repo without its own ISSUE_TEMPLATE/.
+#
+# Deliberately generic: this file is also what `brand` would inherit, where "server
+# software" is meaningless. Plugin repos should keep their own template with the
+# required version and server fields - SpiralGenesis and SessionPulse both do.
+name: Bug Report
+description: Report a bug or unintended behavior
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please check you are on the latest release first —
+        and if this is a security issue or an exploit, **do not file it here**: open a
+        [private advisory](https://github.com/Ninja6-MC/.github/blob/main/SECURITY.md)
+        instead.
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The version of this project you are running.
+      placeholder: "e.g. 1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Server software and version, OS, Java version — whatever is relevant here.
+      placeholder: "e.g. Paper 1.21.4 build 232, Java 21"
+    validations:
+      required: false
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What happened, and what did you expect instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: The smallest sequence that still triggers it.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Stack Trace
+      description: Any relevant console output. Paste the text, not a screenshot of it.
+      render: text
+    validations:
+      required: false

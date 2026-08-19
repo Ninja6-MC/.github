@@ -1,0 +1,9 @@
+# Copy to .github/workflows/dco.yml in a new repo. That is the whole file - the
+# check itself lives in Ninja6-MC/.github and is maintained in one place.
+name: DCO
+
+on: pull_request
+
+jobs:
+  dco:
+    uses: Ninja6-MC/.github/workflows/dco.yml@main
