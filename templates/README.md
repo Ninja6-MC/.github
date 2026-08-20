@@ -17,6 +17,7 @@ copy.**
 | `gitattributes.template` | repo root, **renamed to `.gitattributes`** | Drop the `gradlew*` lines in a non-Gradle repo; keep the rest. |
 | `dco-stub.yml` | `.github/workflows/dco.yml` | Calls the reusable check. Do not copy the check itself. |
 | `standards-stub.yml` | `.github/workflows/standards.yml` | Calls the reusable standards check. Add it when the repo adopts the register, not before. |
+| `dependabot.template` | `.github/dependabot.yml`, **renamed** | Keeps SHA-pinned actions current. Grouped, with majors split out. Inert at this path, but suffixed like the other copies so nobody has to check whether it is live config for this repo. |
 | `scorecard-stub.yml` | `.github/workflows/scorecard.yml` | Calls the reusable OpenSSF Scorecard run. **Public repos only** — private repos cannot publish results or upload SARIF on the Free plan. |
 
 Not templated, and why:
@@ -31,6 +32,28 @@ Not templated, and why:
   process yet to write down, and inventing one before the second publishing repo exists
   would be guessing.
 * **`LICENSE`** — a deliberate per-repo choice, not a default. Plugin repos are GPL-3.0.
+
+## Conventions the stubs demonstrate
+
+Not rules. Nothing in `standards/` assigns these an ID and no check enforces them, so a
+repository that ignores them is not in breach. They are written down because the 2026-08-20
+hardening pass established them across `SpiralGenesis` and `SessionPulse`, and a new
+repository copying only the files above would silently get none of it.
+
+* **Pin actions to a commit SHA, never a tag**, with the version in a trailing comment:
+  `uses: actions/checkout@11d5960... # v4.4.0`. A tag can be repointed at new code with no
+  diff and no notification. Copy `dependabot.template` in the same breath, or the pin
+  rots. Watch for **annotated** tags - the tag ref's object sha is the tag object, not the
+  commit, and pinning to it fails. Dereference through `/git/tags/` first.
+* **Declare a top-level `permissions:`** in every workflow, as narrow as the workflow
+  allows, and let a job widen it where it must. A job's permissions REPLACE the workflow's
+  on a normal run; the cap applies only to a reusable workflow *call*, and exceeding it
+  there is a silent `startup_failure`.
+* **`persist-credentials: false` on every `actions/checkout`** unless a step does an
+  authenticated git operation. The default leaves the token in `.git/config` for anything
+  later in the job to find, which matters most in a job holding `contents: write`.
+
+Whether these should become `N6-CI-*` rule IDs is open. As conventions they bind nobody.
 
 ## Fixing something here
 
