@@ -24,9 +24,10 @@ jobs:
 The canonical copy is [`templates/dco-stub.yml`](../templates/dco-stub.yml). Copy it;
 do not retype it.
 
-At the time of writing only `brand` does this. `SpiralGenesis` and `SessionPulse` both keep
-a full local copy of the script, byte-identical to each other apart from line endings. Both
-are listed as adoption gaps in [`README.md` §6](README.md#6-adoption).
+Every repository now does this. `SpiralGenesis` and `SessionPulse` each kept a full local
+copy of the script - byte-identical to each other apart from line endings - and both were
+swapped for the stub during adoption. The swap is what renames the reported check, which is
+why it has to be sequenced against the required list; see `N6-CI-03`.
 
 This repository satisfies the rule by *hosting* the workflow rather than calling it. Its
 `dco.yml` carries both `workflow_call` and `pull_request` triggers, so its own pull
@@ -67,15 +68,16 @@ together.** Doing it in the wrong order blocks every open pull request on the re
 
 ### What is required today
 
-Recorded here because `N6-CI-03` is exactly the rule that gets this wrong, and because the
-two repositories need **different strings for the same check**:
+Recorded here because `N6-CI-03` is exactly the rule that gets this wrong, and because a
+repository that **calls** the reusable workflows needs a **different string for the same
+check** from the one that **hosts** them:
 
 | Repository | Required contexts |
 | :--- | :--- |
 | `SpiralGenesis` | `Build and Test`, `dco / Check Sign-off`, `standards / Check Standards` |
 | `.github` | `Check Sign-off`, `Check Standards` |
 | `brand` | none possible — private on Free |
-| `SessionPulse` | none yet — parked |
+| `SessionPulse` | `dco / Check Sign-off`, `standards / Check Standards` |
 
 `.github` reports both names **unprefixed** because it *hosts* the two reusable workflows
 rather than calling them, so there is no calling job to prefix with. Every other
@@ -83,6 +85,13 @@ repository calls them through a stub and gets `<job-id> / <job-name>`. Copying o
 repository's list to the other blocks every pull request on a name that will never report.
 
 Every name above was read off a real run before being required, not predicted.
+
+**`SessionPulse`'s `Committed Icons Match The Master` is deliberately absent**, and the
+reason generalises: it is **path-scoped**, so it does not run on a pull request that
+touches no artwork. Measured - it reported on the pull request that changed
+`docs/assets/`, and did not report on the one that did not. A required check that does not
+report blocks the merge, so a conditional check cannot be required unless it is made to
+report a skip.
 
 **Scorecard is deliberately absent.** It scores a repository rather than a diff, has no
 `pull_request` trigger, and therefore reports no check name at all on a pull request.

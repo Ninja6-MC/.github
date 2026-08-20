@@ -185,8 +185,14 @@ Adoption order, and why:
    mostly `permanent` entries.
 4. **`SessionPulse`** — last, in a single pass, once the register has stopped moving.
 
-Known gaps at the time of writing, none of them yet excepted because their repositories are
-not yet adopted: `SpiralGenesis` and `SessionPulse` both keep a local DCO copy (`N6-CI-01`)
-and ship issue templates without `config.yml` (`N6-REPO-02`); `SessionPulse`'s `main` is
-unprotected (`N6-CI-05`); no repository outside this one yet carries an exceptions file
-(`N6-REPO-05`).
+**Adoption is complete.** All four repositories carry an exceptions file and are measured
+by the `Standards` workflow.
+
+The gaps this section originally listed are all closed: `SpiralGenesis` and `SessionPulse`
+each kept a local DCO copy (`N6-CI-01`) and shipped issue templates without `config.yml`
+(`N6-REPO-02`); `SessionPulse`'s `main` had no required status checks (`N6-CI-05`); and no
+repository outside this one carried an exceptions file (`N6-REPO-05`).
+
+One exception remains org-wide, and it is `permanent`: `brand` cannot protect `main` at
+all (`N6-BRANCH-01`), because it is private and the organisation is on the Free plan. The
+`Standards` check still runs and reports there; it simply cannot block.
