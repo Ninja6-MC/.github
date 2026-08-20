@@ -30,10 +30,10 @@ Three limits worth knowing before relying on this:
   inherits `CODE_OF_CONDUCT.md`, which it does not define.
 * **Issue templates are the exception — they fall back per *directory*, not per file.**
   A repo that defines even one template of its own inherits *none* of the org ones,
-  `config.yml` included. `SpiralGenesis` and `SessionPulse` both ship two templates and
-  no `config.yml`, so neither one gets `blank_issues_enabled: false` or the security
-  contact link, and blank issues stay enabled for both. Each needs its own `config.yml`;
-  there is no way to supply one from here.
+  `config.yml` included - so blank issues stay enabled and the security contact link
+  disappears from the chooser, and nothing anywhere reports it. `SpiralGenesis` and
+  `SessionPulse` each define two templates and so each carries its own `config.yml`;
+  there is no way to supply one from here. This is `N6-REPO-02`, and it is checked.
 
 So the defaults here mostly benefit the *next* repo. That is the point of writing them
 before there is a next repo.

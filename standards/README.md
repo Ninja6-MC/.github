@@ -83,9 +83,9 @@ is real or the address reachable.
 ³ Checked by the `Standards` workflow in this repository
 ([`.github/workflows/standards.yml`](../.github/workflows/standards.yml), logic in
 [`scripts/check-standards.py`](../scripts/check-standards.py)), which every adopted
-repository calls through a stub, **and required on every repository whose `main` can be
-protected** — so a violation blocks the merge rather than waiting for a reviewer to
-notice it.
+repository except this one calls through a stub — this one hosts it instead — **and
+required on every repository whose `main` can be protected**, so a violation blocks the
+merge rather than waiting for a reviewer to notice it.
 
 `brand` is the exception, and it is already recorded as one: the check runs and reports
 there, but a private repository on the Free plan cannot have branch protection at all, so

@@ -24,7 +24,7 @@ jobs:
 The canonical copy is [`templates/dco-stub.yml`](../templates/dco-stub.yml). Copy it;
 do not retype it.
 
-Every repository now does this. `SpiralGenesis` and `SessionPulse` each kept a full local
+Every repository that calls it now does. `SpiralGenesis` and `SessionPulse` each kept a full local
 copy of the script - byte-identical to each other apart from line endings - and both were
 swapped for the stub during adoption. The swap is what renames the reported check, which is
 why it has to be sequenced against the required list; see `N6-CI-03`.
@@ -92,6 +92,15 @@ touches no artwork. Measured - it reported on the pull request that changed
 `docs/assets/`, and did not report on the one that did not. A required check that does not
 report blocks the merge, so a conditional check cannot be required unless it is made to
 report a skip.
+
+**`strict` and machine-owned branches: rebase, never the button.** With
+"branches must be up to date" on, a sync pull request from the asset pipeline goes
+`BEHIND` whenever `main` moves after its last run. The obvious remedy - GitHub's
+**Update branch** button, or `gh pr update-branch` *without* `--rebase` - creates a merge
+commit, which fails twice over: it breaches `required_linear_history`, and it is not
+authored by the bot, so the pipeline's foreign-commit guard then treats the branch as
+hand-edited and hard-fails that leg with "refusing to force-push over them". Always
+`gh pr update-branch --rebase`, which preserves the author address the guard matches on.
 
 **Scorecard is deliberately absent.** It scores a repository rather than a diff, has no
 `pull_request` trigger, and therefore reports no check name at all on a pull request.
