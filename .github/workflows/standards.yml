@@ -15,15 +15,15 @@ name: Standards
 #       standards:
 #         uses: Ninja6-MC/.github/.github/workflows/standards.yml@main   # yes, twice
 #
-# NOT in a required-status-check list yet, deliberately. N6-CI-03: a required check must
-# name a check that actually reports, and the name here (`standards / Check Standards`
-# from a stub, `Check Standards` from this repository's own pull_request run) is only
-# stable once the stub has landed everywhere. Adding it to a required list is a separate
-# change - see the register's adoption notes.
+# This check IS required, on every repository whose `main` can be protected. N6-CI-03: the
+# name it reports under depends on how the workflow was reached - `standards / Check
+# Standards` from a stub, bare `Check Standards` from this repository's own pull_request
+# run - so the two required-check lists are not interchangeable. Copying one repository's
+# list to another blocks every pull request forever on a name that never reports. The
+# canonical table is standards/ci.md.
 #
-# `SessionPulse` deliberately has no stub. It is parked, and it fails five of these
-# checks; wiring it up would be a piecemeal change to a repository that is supposed to
-# get one full pass instead.
+# `brand` calls this workflow but has no required checks at all: it is private on the Free
+# plan, where both branch protection and rulesets return 403.
 
 on:
   workflow_call:
