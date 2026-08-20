@@ -41,7 +41,7 @@ jobs:
       # The repository under test. A called workflow inherits the caller's event
       # payload, so this checks out the CALLER, which is the whole point.
       - name: Checkout the repository under test
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           # N6-REPO-03 walks base..head to find who touched assets/, so the full
           # history is needed - a shallow clone has no merge base to walk back to.
@@ -94,7 +94,7 @@ jobs:
       # than against main, which is what you want when the register itself is the change.
       - name: Checkout the register
         if: github.repository != 'Ninja6-MC/.github'
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: Ninja6-MC/.github
           ref: ${{ steps.register.outputs.ref }}
