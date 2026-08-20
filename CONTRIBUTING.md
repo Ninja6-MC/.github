@@ -81,6 +81,11 @@ git push -u origin feat/my-actual-change && git push origin --delete <old-name>
    * `feat(math): add hexagonal plot calculation`
    * `fix(authme): resolve race condition on delayed join`
    * `docs(readme): add bStats configuration instructions`
+
+   **Keep them short.** The subject usually says everything. Add a body only when the
+   subject cannot carry it, and keep it to a line or two — reasoning, alternatives
+   considered and background belong in the pull request description, where a reviewer
+   reads them, not in `git log`. Wrap the body at 72 characters; git never reflows it.
 6. **Sign off every commit**:
    ```bash
    git commit -s -m "fix(authme): resolve race condition on delayed join"

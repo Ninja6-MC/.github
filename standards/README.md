@@ -56,6 +56,7 @@ than tidiness.
 | `N6-COMMIT-02` | Every commit carries a `Signed-off-by` line | [`CONTRIBUTING.md` §3.6, §5](../CONTRIBUTING.md#5-licensing-of-contributions) | automatic |
 | `N6-COMMIT-03` | Sign-off uses a real name and a reachable email | [`CONTRIBUTING.md` §5](../CONTRIBUTING.md#5-licensing-of-contributions) | automatic² |
 | `N6-COMMIT-04` | The PR title is itself a Conventional Commit, because PRs are squash-merged | [`CONTRIBUTING.md` §4.5](../CONTRIBUTING.md#4-submitting-pull-requests) | reviewed |
+| `N6-COMMIT-05` | A commit body is optional and short; reasoning goes in the pull request | [`CONTRIBUTING.md` §3.5](../CONTRIBUTING.md#3-development-workflow) | reviewed |
 
 ² The DCO check verifies the line is present and well-formed. It cannot verify the name
 is real or the address reachable.
