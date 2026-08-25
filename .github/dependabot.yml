@@ -3,6 +3,11 @@
 # .github/workflows/ are CALLED by every other repository, so a stale pin here is stale
 # everywhere at once.
 #
+# THE PATH IS LOAD-BEARING. Dependabot reads this file only at .github/dependabot.yml.
+# It lived at the repository root until 2026-08-26, where it parsed fine, showed up in
+# review and never ran once. Nothing goes red when it is misplaced - the symptom is
+# silence - so do not "tidy" it back up a level.
+#
 # WHY THIS EXISTS. Workflow actions in this org are pinned to commit SHAs, not tags:
 # a tag can be repointed at new code with no diff, no review and no notification. The
 # pin closes that, and opens the opposite hole - it goes stale in silence, because
