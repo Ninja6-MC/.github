@@ -1,0 +1,84 @@
+# <Repo> Release Lifecycle & Publishing Guide
+
+This document defines the versioning rules, release channels and publishing procedure for
+**<Repo>**.
+
+Copy to `RELEASE_PROCESS.md` in the repository root. `N6-REL-01` requires it in any
+repository whose workflows can publish a release, alongside `CHANGELOG.md`.
+
+Everything in angle brackets is a per-repo decision. **Delete the guidance comments as you
+fill them in** - a template left half-answered reads as a decision that was made.
+
+---
+
+## 1. Versioning Rules (SemVer 2.0.0)
+
+<!-- Pre-1.0 repos use the 0.MINOR.PATCH track and say so; see Keyframe. A repo whose
+     public surface is stable uses MAJOR.MINOR.PATCH; see SpiralGenesis. Say which and
+     why, because the leading digit is a promise about stability. -->
+
+* **MAJOR** - <what constitutes a breaking change here>
+* **MINOR** - <what constitutes a feature>
+* **PATCH** - <what constitutes a fix>
+* **Pre-releases** - `-alpha.N`, `-beta.N`, `-rc.N` as the repo uses them
+
+## 2. Release Channels
+
+<!-- Channels are tiers, and they are NOT the same thing as distribution platforms. State
+     which of the two this table is. Derive the tier from the tag rather than choosing it
+     by hand: a hardcoded `prerelease: false` publishes an alpha as the latest download,
+     which is what Keyframe's release.yml did until 2026-08-26. -->
+
+| Channel | Tag | Published as |
+| :--- | :--- | :--- |
+| Alpha | `vX.Y.Z-alpha.N` | pre-release |
+| Beta | `vX.Y.Z-beta.N` | pre-release |
+| Stable | `vX.Y.Z` | latest release |
+
+## 3. How to Execute a Release
+
+### Step 1: Pre-release checklist
+
+* `main` is green.
+* The version recorded in the build metadata matches the tag, without the leading `v`.
+* For a **stable** release, `CHANGELOG.md` has a section for the version. Gate this in the
+  workflow rather than trusting the checklist - see below.
+
+### Step 2: Cut the tag
+
+```bash
+git checkout main && git pull
+git tag vX.Y.Z
+git push origin vX.Y.Z
+```
+
+### Step 3: Automated CI actions
+
+<!-- What the release workflow does, in order, and where the artefacts land. -->
+
+## 4. Repository Secrets
+
+<!-- Name each secret and what it reaches. If there are none - the workflow uses only its
+     own GITHUB_TOKEN - say so explicitly. "None" is information; an absent section is
+     not. -->
+
+## 5. Distribution
+
+<!-- Where releases actually go. If the answer is "nowhere but this repository", say that
+     and say what adding a channel would require. A repo whose LICENSE constrains
+     redistribution makes adding a platform a licensing decision rather than a publishing
+     convenience - see Keyframe section 5. -->
+
+---
+
+## The changelog gate
+
+Every publishing repo should fail its own stable release when `CHANGELOG.md` has no section
+for the version being cut. `SpiralGenesis` established this and `Keyframe` mirrors it:
+
+* a **stable** tag with no `## [X.Y.Z]` section fails the release with an actionable message
+* a **pre-release** tag may ship without one - alphas move faster than the changelog
+* release notes are taken from the matching section, with generated notes appended
+
+The failure it prevents is silent: a stable release tagged while `CHANGELOG.md` still says
+only `[Unreleased]` publishes with no record of what changed and nobody notices.

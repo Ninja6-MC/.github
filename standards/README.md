@@ -84,6 +84,12 @@ is real or the address reachable.
 | `N6-REPO-04` | `.editorconfig` and `.gitattributes` come from [`templates/`](../templates) | [`repo-layout.md`](repo-layout.md) | reviewed |
 | `N6-REPO-05` | Every repository carries a `standards-exceptions.yml`, even when it has no exceptions | this file, §3 | automatic³ |
 
+### Releases
+
+| ID | Rule | Normative text | Enforcement |
+| :--- | :--- | :--- | :--- |
+| `N6-REL-01` | A repository whose workflows can publish a release carries `RELEASE_PROCESS.md` and `CHANGELOG.md` | [`releases.md`](releases.md) | automatic³ |
+
 ³ Checked by the `Standards` workflow in this repository
 ([`.github/workflows/standards.yml`](../.github/workflows/standards.yml), logic in
 [`scripts/check-standards.py`](../scripts/check-standards.py)), which every adopted
