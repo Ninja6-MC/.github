@@ -35,6 +35,10 @@ jobs:
         with:
           # The comparison walks back to the merge base, so the full history is needed.
           fetch-depth: 0
+          # Read-only: this job inspects commits and never pushes, so the token
+          # does not need to be left in .git/config for later steps to find
+          # (N6-CI-08).
+          persist-credentials: false
 
       - name: Verify Every Commit Is Signed Off
         env:

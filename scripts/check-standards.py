@@ -360,6 +360,136 @@ def check_dco(repo):
 
 
 # --------------------------------------------------------------------------------------
+# N6-CI-06 / N6-CI-07 / N6-CI-08 - workflow hardening
+# --------------------------------------------------------------------------------------
+
+SHA_RE = re.compile(r"@[0-9a-f]{40}$")
+ORG_REUSABLE = "Ninja6-MC/.github/"
+
+
+def _workflow_files():
+    d = os.path.join(".github", "workflows")
+    if not os.path.isdir(d):
+        return []
+    return [os.path.join(d, f) for f in sorted(os.listdir(d))
+            if f.endswith((".yml", ".yaml"))]
+
+
+def _triggers(data):
+    """`on:` parses as the YAML 1.1 boolean True. Both spellings are checked."""
+    raw = data.get("on", data.get(True)) or {}
+    if isinstance(raw, dict):
+        return set(raw)
+    if isinstance(raw, list):
+        return set(raw)
+    return {raw} if raw else set()
+
+
+def check_workflow_hardening():
+    findings = []
+    for path in _workflow_files():
+        data, err = load_yaml(path)
+        if err:
+            findings.append(Finding("N6-CI-07", "%s %s" % (path, err)))
+            continue
+        if not isinstance(data, dict):
+            continue
+
+        jobs = data.get("jobs") or {}
+        reusable = "workflow_call" in _triggers(data)
+
+        # ---- N6-CI-07: an explicit grant, at either level -----------------------------
+        if "permissions" not in data:
+            ungranted = [n for n, j in jobs.items()
+                         if isinstance(j, dict) and "permissions" not in j]
+            if ungranted:
+                findings.append(Finding(
+                    "N6-CI-07",
+                    "%s declares no permissions, and neither do: %s"
+                    % (path, ", ".join(sorted(ungranted))),
+                    "A workflow with no `permissions:` runs on the repository default "
+                    "grant. Declare one at workflow level, or - for a reusable workflow "
+                    "whose job needs more than a workflow-level cap would allow - on the "
+                    "job. A workflow-level grant CAPS a called job rather than being "
+                    "replaced by it, which is why scorecard.yml declares its own on the "
+                    "job and carries no top-level block."))
+        elif reusable:
+            # A cap is fine until a job needs more than it. That combination is the
+            # startup_failure this rule exists to prevent: no job, no annotation.
+            top = data.get("permissions")
+            if isinstance(top, dict):
+                for n, j in jobs.items():
+                    if not isinstance(j, dict):
+                        continue
+                    jp = j.get("permissions")
+                    if not isinstance(jp, dict):
+                        continue
+                    wider = [k for k, v in jp.items()
+                             if v == "write" and top.get(k) != "write"]
+                    if wider:
+                        findings.append(Finding(
+                            "N6-CI-07",
+                            "%s is reusable, caps %s at the workflow level, and job %r "
+                            "asks for: %s" % (path, sorted(top), n, ", ".join(sorted(wider))),
+                            "In a CALLED workflow the workflow-level grant caps the job "
+                            "instead of being replaced by it, so this combination fails "
+                            "at startup with no job and nothing retrievable through the "
+                            "API. Drop the top-level block and grant on the job."))
+
+        for name, job in jobs.items():
+            if not isinstance(job, dict):
+                continue
+
+            steps = job.get("steps") or []
+            uses_refs = [job["uses"]] if isinstance(job.get("uses"), str) else []
+            uses_refs += [s["uses"] for s in steps
+                          if isinstance(s, dict) and isinstance(s.get("uses"), str)]
+
+            # ---- N6-CI-06: pinned to a SHA -------------------------------------------
+            for ref in uses_refs:
+                if ref.startswith(ORG_REUSABLE):
+                    # This organisation's own reusable workflows stay on @main
+                    # deliberately; pinning them would defeat maintaining the checks in
+                    # one place, and they are not third-party code.
+                    continue
+                if not SHA_RE.search(ref):
+                    findings.append(Finding(
+                        "N6-CI-06",
+                        "%s job %r uses %r, which is not a commit SHA" % (path, name, ref),
+                        "A tag can be repointed at new code with no diff, no review and "
+                        "no notification. Pin to the 40-character commit SHA with the "
+                        "version in a trailing comment. Check whether the tag is "
+                        "annotated first - on an annotated tag the ref's object.sha is "
+                        "the tag object and pinning to it fails; dereference through "
+                        "/git/tags/{sha}. Pin only alongside .github/dependabot.yml "
+                        "(N6-CI-06), or the pin goes stale in silence."))
+
+            # ---- N6-CI-08: no persisted credentials ----------------------------------
+            for step in steps:
+                if not isinstance(step, dict):
+                    continue
+                if not str(step.get("uses", "")).startswith("actions/checkout@"):
+                    continue
+                with_ = step.get("with") or {}
+                if "token" in with_:
+                    # Passing a token IS the declaration that this checkout exists in
+                    # order to push. brand/sync-assets.yml is the case.
+                    continue
+                if with_.get("persist-credentials") is not False:
+                    findings.append(Finding(
+                        "N6-CI-08",
+                        "%s job %r checks out without `persist-credentials: false`"
+                        % (path, name),
+                        "actions/checkout writes the job token into .git/config by "
+                        "default, where every later step can read it - including a "
+                        "third-party action. Set persist-credentials: false unless this "
+                        "checkout performs an authenticated git operation, in which case "
+                        "it should pass an explicit `token:` instead."))
+
+    return findings
+
+
+# --------------------------------------------------------------------------------------
 # N6-CI-04 - line endings
 # --------------------------------------------------------------------------------------
 
@@ -549,6 +679,7 @@ def main():
     others += check_issue_templates()
     others += check_dco(repo)
     others += check_gitattributes()
+    others += check_workflow_hardening()
     others += check_assets(os.environ.get("BASE_SHA"), os.environ.get("HEAD_SHA"))
 
     for f in others:
