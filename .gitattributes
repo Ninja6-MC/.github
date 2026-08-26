@@ -21,6 +21,7 @@
 # core.autocrlf=true and reading the bytes, not by grepping for CR.
 LICENSE         text eol=lf
 .gitattributes  text eol=lf
+.gitignore      text eol=lf
 
 # Never apply end-of-line conversion to binaries. Without this, git would try to
 # "fix" the endings inside a PNG and corrupt it.

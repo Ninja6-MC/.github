@@ -1,0 +1,5 @@
+# check-standards.py is meant to be run against a clone before pushing - standards/ci.md
+# and templates/README.md both say so - and doing that leaves bytecode behind. Ignore it
+# rather than letting it reach a pull request.
+__pycache__/
+*.py[cod]

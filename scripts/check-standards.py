@@ -490,6 +490,70 @@ def check_workflow_hardening():
 
 
 # --------------------------------------------------------------------------------------
+# N6-REL-01 - a repository that can publish a release documents how
+# --------------------------------------------------------------------------------------
+
+RELEASE_ACTIONS = ("softprops/action-gh-release",)
+
+
+def _publishes_releases():
+    """Does any workflow here have the capability to publish a release?
+
+    The trigger is the CAPABILITY, not a filename: renaming release.yml exempts nothing,
+    and a repository that has never cut a tag is covered the moment it could.
+    """
+    for path in _workflow_files():
+        data, err = load_yaml(path)
+        if err or not isinstance(data, dict):
+            continue
+
+        # A version-tag trigger. `on:` parses as boolean True; see _triggers.
+        raw = data.get("on", data.get(True))
+        if isinstance(raw, dict):
+            push = raw.get("push")
+            if isinstance(push, dict) and push.get("tags"):
+                return path
+
+        for job in (data.get("jobs") or {}).values():
+            if not isinstance(job, dict):
+                continue
+            for step in (job.get("steps") or []):
+                if not isinstance(step, dict):
+                    continue
+                uses = str(step.get("uses", ""))
+                if uses.startswith(RELEASE_ACTIONS):
+                    return path
+                run = step.get("run")
+                if isinstance(run, str) and "gh release create" in run:
+                    return path
+    return None
+
+
+def check_release_docs():
+    where = _publishes_releases()
+    if not where:
+        # Publishes nothing, so the rule does not apply. A repository may still carry the
+        # files - SessionPulse documents a process it has not yet used, which is foresight
+        # rather than a violation.
+        return []
+
+    missing = [f for f in ("RELEASE_PROCESS.md", "CHANGELOG.md") if not os.path.exists(f)]
+    if not missing:
+        return []
+
+    return [Finding(
+        "N6-REL-01",
+        "%s can publish a release, but %s %s missing"
+        % (where, " and ".join(missing), "is" if len(missing) == 1 else "are"),
+        "A repository that can publish a release documents how. RELEASE_PROCESS.md is for "
+        "the person cutting it - what the version promises, which tag produces which "
+        "channel, what must be true first. CHANGELOG.md is for the person receiving it, "
+        "and generated release notes are not a substitute: they list merged pull request "
+        "titles, which is what work happened rather than what changed. Start from "
+        "templates/release-process.template and see standards/releases.md.")]
+
+
+# --------------------------------------------------------------------------------------
 # N6-CI-04 - line endings
 # --------------------------------------------------------------------------------------
 
@@ -680,6 +744,7 @@ def main():
     others += check_dco(repo)
     others += check_gitattributes()
     others += check_workflow_hardening()
+    others += check_release_docs()
     others += check_assets(os.environ.get("BASE_SHA"), os.environ.get("HEAD_SHA"))
 
     for f in others:

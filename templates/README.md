@@ -13,12 +13,13 @@ copy.**
 
 | File | Copy to | Notes |
 |---|---|---|
-| `editorconfig.template` | repo root, **renamed to `.editorconfig`** | Unchanged otherwise. 4-space indent, LF, UTF-8; 2 for YAML. |
+| `editorconfig.template` | repo root, **renamed to `.editorconfig`** | Unchanged otherwise. 4-space indent, LF, UTF-8; 2 for YAML and for web and data file types. |
 | `gitattributes.template` | repo root, **renamed to `.gitattributes`** | Drop the `gradlew*` lines in a non-Gradle repo; keep the rest. |
 | `dco-stub.yml` | `.github/workflows/dco.yml` | Calls the reusable check. Do not copy the check itself. |
 | `standards-stub.yml` | `.github/workflows/standards.yml` | Calls the reusable standards check. Add it when the repo adopts the register, not before. |
 | `dependabot.template` | `.github/dependabot.yml`, **renamed** | Keeps SHA-pinned actions current. Grouped, with majors split out. Inert at this path, but suffixed like the other copies so nobody has to check whether it is live config for this repo. |
 | `scorecard-stub.yml` | `.github/workflows/scorecard.yml` | Calls the reusable OpenSSF Scorecard run. **Public repos only** — private repos cannot publish results or upload SARIF on the Free plan. |
+| `release-process.template` | `RELEASE_PROCESS.md`, **renamed** | Required by `N6-REL-01` in any repo that can publish a release. A skeleton with the decisions marked, not a document to copy unread. |
 
 Not templated, and why:
 
@@ -27,10 +28,11 @@ Not templated, and why:
   wrong for every repo and silently under-ignore for at least one.
 * **`CHANGELOG.md`** — per-repo content by definition. Copy the *format*
   ([Keep a Changelog](https://keepachangelog.com/)) from `SpiralGenesis`, not the file.
-* **`RELEASE_PROCESS.md`** — varies with how the repo publishes. `SpiralGenesis`
-  releases a jar to Hangar and Modrinth; `brand` releases nothing. There is no shared
-  process yet to write down, and inventing one before the second publishing repo exists
-  would be guessing.
+  `RELEASE_PROCESS.md` **is** templated as of 2026-08-26: this section previously said
+  inventing one "before the second publishing repo exists would be guessing", and that
+  condition is now met — `SpiralGenesis`, `SessionPulse` and `Keyframe` had independently
+  converged on the same seven sections, with `SessionPulse`'s a near-copy of
+  `SpiralGenesis`'s. Three copies drifting is what `N6-REPO-04` exists to prevent.
 * **`LICENSE`** — a deliberate per-repo choice, not a default. Plugin repos are GPL-3.0.
 
 ## Conventions the stubs demonstrate
