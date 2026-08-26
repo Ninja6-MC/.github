@@ -70,6 +70,9 @@ is real or the address reachable.
 | `N6-CI-03` | A required status check must name a check that actually reports | [`ci.md`](ci.md) | documented |
 | `N6-CI-04` | Workflow YAML is committed with LF endings | [`repo-layout.md`](repo-layout.md) | automatic³ |
 | `N6-CI-05` | Public repositories protect `main`: pull request required, CI green, linear history, administrators included | [`ci.md`](ci.md) | reviewed |
+| `N6-CI-06` | Every third-party action is referenced by commit SHA, never by tag | [`ci.md`](ci.md) | automatic³ |
+| `N6-CI-07` | Every workflow declares an explicit `permissions:` grant rather than running on the repository default | [`ci.md`](ci.md) | automatic³ |
+| `N6-CI-08` | A checkout that does not set an explicit `token:` sets `persist-credentials: false` | [`ci.md`](ci.md) | automatic³ |
 
 ### Repository contents
 

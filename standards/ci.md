@@ -1,6 +1,6 @@
 # CI standards
 
-Normative text for `N6-CI-01` … `N6-CI-03` and `N6-CI-05`. `N6-CI-04` lives in
+Normative text for `N6-CI-01` … `N6-CI-03` and `N6-CI-05` … `N6-CI-08`. `N6-CI-04` lives in
 [`repo-layout.md`](repo-layout.md#n6-ci-04--line-endings). The register is in
 [`README.md`](README.md).
 
@@ -134,3 +134,77 @@ Protection matters most on **this** repository. `.github` holds the reusable wor
 gates every other repository's pull requests, and the asset-sync GitHub App holds
 `contents: write` here. An unprotected `main` here is the widest hole in the organisation,
 not the narrowest.
+
+## `N6-CI-06` — third-party actions are pinned to a commit SHA
+
+Every `uses:` referencing an action outside this organisation names a 40-character commit
+SHA, with the human-readable version in a trailing comment:
+
+```yaml
+uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+```
+
+A tag is a moving pointer. It can be repointed at new code with no diff, no review and no
+notification, and the workflow that ran yesterday is not the workflow that runs today. The
+pin closes that.
+
+**It also opens the opposite hole**, and the rule is only half a rule without the other
+side: a pin goes stale in silence, because nothing tells you the pinned version was
+superseded. Every repository that pins therefore carries `.github/dependabot.yml` — see
+`templates/dependabot.template`. A repository that pins without it is worse off than one
+that never pinned, because it has bought immutability and paid for it with invisibility.
+
+**Check whether the tag is annotated before pinning to it.** On an annotated tag the ref's
+`object.sha` is the tag object, not the commit, and pinning to it fails. Dereference
+through `/git/tags/{sha}` first. `actions/checkout`'s `v4` is lightweight and was usable
+directly; `ossf/scorecard-action` was not.
+
+The organisation's own reusable workflows are referenced `@main` deliberately and are
+**not** covered by this rule. Pinning them would defeat the point of maintaining the
+checks in one place, and they are not third-party code. Scorecard may still deduct for it.
+
+## `N6-CI-07` — every workflow declares its permissions
+
+A workflow that declares no `permissions:` runs on the repository's default grant, which is
+broader than any workflow here needs and changes underneath you when an organisation
+setting changes. Every workflow declares an explicit grant.
+
+**The grant may sit at workflow level or at job level.** What the rule forbids is neither
+— it is running on the default. Both placements are compliant, and which one is correct
+depends on the workflow:
+
+* **Workflow level** is the normal choice, and it acts as a cap.
+* **Job level, with no top-level block**, is required where a workflow carries a
+  `workflow_call` trigger *and* a job needs a broader grant than a workflow-level cap would
+  allow. **A workflow-level `permissions:` CAPS the job in a called workflow** rather than
+  being replaced by it, which is not how it behaves on a normal run — there, a job's
+  `permissions:` replaces the workflow's.
+
+That distinction is not academic. `read-all` at the top of `scorecard.yml`, against a job
+wanting `security-events: write`, produced a `startup_failure`: no job, no annotation and
+nothing retrievable through the API. `scorecard.yml` therefore carries no top-level block
+and declares its grant on the job, and that is compliance rather than an exception.
+
+`dco.yml` and `standards.yml` are also reusable but keep a workflow-level
+`contents: read`, because their jobs need nothing beyond it and the cap is worth having.
+
+## `N6-CI-08` — a checkout does not leave the token behind
+
+`actions/checkout` writes the job's token into `.git/config` by default, where every later
+step in the job can read it — including a third-party action that has no business with it.
+Unless a checkout is going to be used for an authenticated git operation, it sets:
+
+```yaml
+with:
+  persist-credentials: false
+```
+
+**A checkout that sets an explicit `token:` is exempt**, and that is the mechanical test.
+Passing a token is the declaration that the checkout exists in order to push. `brand`'s
+`sync-assets.yml` is the case: three checkouts, two read-only and credential-free, and one
+that takes a minted GitHub App installation token and pushes the sync branch through it.
+Turning credentials off on that third one would break the pipeline, so it keeps them, and
+a comment beside each says which is which.
+
+It matters most in a job holding `contents: write` and running a third-party action — the
+publish path — which is exactly where it was missing when this rule was written.

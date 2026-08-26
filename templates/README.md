@@ -35,10 +35,14 @@ Not templated, and why:
 
 ## Conventions the stubs demonstrate
 
-Not rules. Nothing in `standards/` assigns these an ID and no check enforces them, so a
-repository that ignores them is not in breach. They are written down because the 2026-08-20
-hardening pass established them across `SpiralGenesis` and `SessionPulse`, and a new
-repository copying only the files above would silently get none of it.
+**These are rules now.** They were conventions until 2026-08-26, binding nobody; they carry
+IDs and a mechanical check as of `N6-CI-06`, `N6-CI-07` and `N6-CI-08`. Normative text is in
+[`standards/ci.md`](../standards/ci.md); the `Standards` workflow fails a pull request that
+breaks one. The summary below is a pointer, not a second copy of the rule.
+
+What made the case was `Keyframe`: created after this section was written, it took none of
+it, and its `release.yml` — the workflow holding `contents: write` and publishing the zips
+users download — ran on three unpinned tag refs until someone happened to look.
 
 * **Pin actions to a commit SHA, never a tag**, with the version in a trailing comment:
   `uses: actions/checkout@11d5960... # v4.4.0`. A tag can be repointed at new code with no
@@ -53,7 +57,8 @@ repository copying only the files above would silently get none of it.
   authenticated git operation. The default leaves the token in `.git/config` for anything
   later in the job to find, which matters most in a job holding `contents: write`.
 
-Whether these should become `N6-CI-*` rule IDs is open. As conventions they bind nobody.
+A checkout that passes an explicit `token:` is exempt from the third: passing a token is
+the declaration that the checkout exists in order to push.
 
 ## Fixing something here
 

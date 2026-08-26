@@ -46,6 +46,10 @@ jobs:
           # N6-REPO-03 walks base..head to find who touched assets/, so the full
           # history is needed - a shallow clone has no merge base to walk back to.
           fetch-depth: 0
+          # Read-only: this job inspects commits and never pushes, so the token
+          # does not need to be left in .git/config for later steps to find
+          # (N6-CI-08).
+          persist-credentials: false
           path: repo
 
       # Which ref of THIS repository to read the register and the checker from.
@@ -99,6 +103,8 @@ jobs:
           repository: Ninja6-MC/.github
           ref: ${{ steps.register.outputs.ref }}
           path: register
+          # Read-only: the register is only read (N6-CI-08).
+          persist-credentials: false
 
       - name: Check standards
         working-directory: repo
