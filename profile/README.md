@@ -25,7 +25,6 @@
 |---|---|---|
 | [**SpiralGenesis**](https://github.com/Ninja6-MC/SpiralGenesis) | Spiral-pattern spawn distribution — every player gets their own plot, allocated asynchronously | Released |
 | [**SessionPulse**](https://github.com/Ninja6-MC/SessionPulse) | — | Early scaffolding |
-| **brand** *(private)* | Icon and identity assets, and the rulebook that generates them. Distributes marks to the repos above by pull request | Variants 1–5 shipped |
 
 ## How we work
 
