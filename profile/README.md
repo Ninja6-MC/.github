@@ -14,7 +14,7 @@
 <h1 align="center">Ninja6</h1>
 
 <p align="center">
-  <sub>Server-side Minecraft plugins for Paper and Folia.</sub>
+  <sub>Server-side plugins for Paper and Folia, and vector-mastered Minecraft resource packs.</sub>
 </p>
 
 ---
@@ -23,16 +23,20 @@
 
 | Project | What it does | Status |
 |---|---|---|
-| [**SpiralGenesis**](https://github.com/Ninja6-MC/SpiralGenesis) | Spiral-pattern spawn distribution — every player gets their own plot, allocated asynchronously | Released |
-| [**SessionPulse**](https://github.com/Ninja6-MC/SessionPulse) | — | Early scaffolding |
+| [**SpiralGenesis**](https://github.com/Ninja6-MC/SpiralGenesis) | Spiral-pattern spawn distribution - every player gets their own plot, allocated asynchronously | Released |
+| [**SessionPulse**](https://github.com/Ninja6-MC/SessionPulse) | Session health reminders, playtime tracking, and optional session limits | Early scaffolding |
+| [**TextureStudio**](https://github.com/Ninja6-MC/TextureStudio) | Resolution-independent 3D vector texture studio and resource pack compiler | In development |
+| [**Keyframe**](https://github.com/Ninja6-MC/Keyframe) | Cinematic trailer aesthetic for Minecraft, rendered in infinite vector clarity | In development |
 
 ## How we work
 
-Every repo targets Java 21 and Paper's async API, uses
-[Conventional Commits](https://www.conventionalcommits.org/), squash-merges through a
-protected `main`, and requires a `Signed-off-by` line on every commit. The details are
-in [CONTRIBUTING.md](https://github.com/Ninja6-MC/.github/blob/main/CONTRIBUTING.md).
+Every repo uses [Conventional Commits](https://www.conventionalcommits.org/),
+squash-merges through a protected `main`, and requires a `Signed-off-by` line on every
+commit. The plugins target Java 21 and Paper's async API. The details are in
+[CONTRIBUTING.md](https://github.com/Ninja6-MC/.github/blob/main/CONTRIBUTING.md).
 
 Bug reports and feature requests are welcome on the relevant project's issue tracker.
-Security issues go through a private advisory, never a public issue — see
+Security issues go through a private advisory, never a public issue - see
 [SECURITY.md](https://github.com/Ninja6-MC/.github/blob/main/SECURITY.md).
+
+Questions and discussion happen on [Discord](https://discord.gg/KEHaeHC8FB).
