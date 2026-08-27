@@ -17,6 +17,7 @@ one here. Nothing is configured; the fallback is the mechanism.
 | `CONTRIBUTING.md` | any repo without its own |
 | `SECURITY.md` | any repo without its own |
 | `CODE_OF_CONDUCT.md` | any repo without its own |
+| `SUPPORT.md` | any repo without its own |
 | `.github/ISSUE_TEMPLATE/` | any repo with **no** `ISSUE_TEMPLATE/` of its own — see below |
 | `.github/PULL_REQUEST_TEMPLATE.md` | any repo without its own |
 | `profile/README.md` | nothing — it *is* the org profile page |
