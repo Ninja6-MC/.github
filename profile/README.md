@@ -21,12 +21,12 @@
 
 ## Projects
 
-| Project | What it does | Status |
-|---|---|---|
-| [**SpiralGenesis**](https://github.com/Ninja6-MC/SpiralGenesis) | Spiral-pattern spawn distribution - every player gets their own plot, allocated asynchronously | Released |
-| [**SessionPulse**](https://github.com/Ninja6-MC/SessionPulse) | Session health reminders, playtime tracking, and optional session limits | Early scaffolding |
-| [**TextureStudio**](https://github.com/Ninja6-MC/TextureStudio) | Resolution-independent 3D vector texture studio and resource pack compiler | In development |
-| [**Keyframe**](https://github.com/Ninja6-MC/Keyframe) | Cinematic trailer aesthetic for Minecraft, rendered in infinite vector clarity | In development |
+| | Project | What it does | Status |
+|:---:|---|---|---|
+| <a href="https://github.com/Ninja6-MC/SpiralGenesis"><img src="https://raw.githubusercontent.com/Ninja6-MC/SpiralGenesis/main/docs/assets/icon-64.png" width="32" height="32" alt="SpiralGenesis"></a> | [**SpiralGenesis**](https://github.com/Ninja6-MC/SpiralGenesis) | Spiral-pattern spawn distribution - every player gets their own plot, allocated asynchronously | Released |
+| <a href="https://github.com/Ninja6-MC/SessionPulse"><img src="https://raw.githubusercontent.com/Ninja6-MC/SessionPulse/main/docs/assets/icon-64.png" width="32" height="32" alt="SessionPulse"></a> | [**SessionPulse**](https://github.com/Ninja6-MC/SessionPulse) | Session health reminders, playtime tracking, and optional session limits | Early scaffolding |
+| <a href="https://github.com/Ninja6-MC/TextureStudio"><img src="https://raw.githubusercontent.com/Ninja6-MC/TextureStudio/main/docs/assets/icon-64.png" width="32" height="32" alt="TextureStudio"></a> | [**TextureStudio**](https://github.com/Ninja6-MC/TextureStudio) | Resolution-independent 3D vector texture studio and resource pack compiler | In development |
+| <a href="https://github.com/Ninja6-MC/Keyframe"><img src="https://raw.githubusercontent.com/Ninja6-MC/Keyframe/main/docs/assets/icon-64.png" width="32" height="32" alt="Keyframe"></a> | [**Keyframe**](https://github.com/Ninja6-MC/Keyframe) | Cinematic trailer aesthetic for Minecraft, rendered in infinite vector clarity | In development |
 
 ## How we work
 
