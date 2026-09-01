@@ -105,6 +105,17 @@ git push -u origin feat/my-actual-change && git push origin --delete <old-name>
 5. PRs are squash-merged, so the PR title becomes the commit on `main` — write it as a
    Conventional Commit.
 
+### PR Review & Iteration Workflow
+When feedback or review comments are received on an open pull request:
+* **No Force-Pushing During Active Review**: Keep existing commits intact and never amend or force-push during an ongoing review cycle so reviewers can inspect the exact delta using GitHub's review diff tools.
+* **Separate Fix Commits**: Address review comments in new, standalone commits with DCO sign-offs (`git commit -s`):
+  ```bash
+  git commit -s -m "fix(compiler): clamp concurrency and add whitelist extension guard"
+  git push origin feat/your-branch-name
+  ```
+* **Link Commits to Comments**: When responding to review comments or resolving threads, cite the specific commit SHA(s) that introduced each fix (e.g., `Resolved in 51de542: ...`).
+* **Squashing at Merge**: Linear history is maintained by squashing or rebasing when merging the pull request into `main`.
+
 ---
 
 ## 5. Licensing of Contributions
