@@ -344,7 +344,7 @@ def check_dco(repo):
                 "N6-CI-01",
                 "%s references %r" % (path, uses),
                 "The `.github` segment must appear TWICE - once as the repository name "
-                "and once as the directory: %s@main. Written once it resolves to "
+                "and once as the directory: %s@<sha>. Written once it resolves to "
                 "workflows/dco.yml, which is not a valid workflow location, and the run "
                 "fails at startup with zero jobs and no error that points at the cause "
                 "(N6-CI-02)." % SHARED_DCO)]
@@ -364,7 +364,6 @@ def check_dco(repo):
 # --------------------------------------------------------------------------------------
 
 SHA_RE = re.compile(r"@[0-9a-f]{40}$")
-ORG_REUSABLE = "Ninja6-MC/.github/"
 
 
 def _workflow_files():
@@ -447,11 +446,6 @@ def check_workflow_hardening():
 
             # ---- N6-CI-06: pinned to a SHA -------------------------------------------
             for ref in uses_refs:
-                if ref.startswith(ORG_REUSABLE):
-                    # This organisation's own reusable workflows stay on @main
-                    # deliberately; pinning them would defeat maintaining the checks in
-                    # one place, and they are not third-party code.
-                    continue
                 if not SHA_RE.search(ref):
                     findings.append(Finding(
                         "N6-CI-06",
