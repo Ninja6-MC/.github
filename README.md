@@ -49,16 +49,20 @@ than copying it:
 name: DCO
 on: pull_request
 
+permissions:
+  contents: read
+
 jobs:
   dco:
-    uses: Ninja6-MC/.github/.github/workflows/dco.yml@9e70c6b8134e62f33ad1f55096d47c00b8edaacc # main @ 2026-09-01
+    uses: Ninja6-MC/.github/.github/workflows/dco.yml@<sha>  # main @ <date>
 ```
 
 That stub replaces ~60 lines of duplicated shell. **Pin it to a commit SHA, not to
 `@main`** — these workflows are required status checks, so an unpinned reference lets a
 single commit here change what gates merges in every repository at once. `N6-CI-06` in
-[`standards/ci.md`](standards/ci.md) carries the full reasoning, including what pinning
-costs. Dependabot proposes the bumps; copy the stub from
+[`standards/ci.md`](standards/ci.md) carries the full reasoning and what pinning
+costs — including that nothing proposes these bumps yet, because this repository has no
+tags or releases for Dependabot to resolve a successor from. Copy the stub from
 [`templates/`](templates) rather than retyping it, so the pin travels with it.
 
 **Only genuinely identical jobs belong here.** The icon drift gates in `brand` and

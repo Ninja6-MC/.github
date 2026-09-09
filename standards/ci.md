@@ -16,6 +16,11 @@ name: DCO
 
 on: pull_request
 
+# Caps what the called workflow may hold, so it has to cover what that workflow asks
+# for. `contents: read` is exactly enough (N6-CI-07).
+permissions:
+  contents: read
+
 jobs:
   dco:
     uses: Ninja6-MC/.github/.github/workflows/dco.yml@<sha>  # main @ <date>
