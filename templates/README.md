@@ -46,7 +46,8 @@ What made the case was `Keyframe`: created after this section was written, it to
 it, and its `release.yml` — the workflow holding `contents: write` and publishing the zips
 users download — ran on three unpinned tag refs until someone happened to look.
 
-* **Pin actions to a commit SHA, never a tag**, with the version in a trailing comment:
+* **Pin every `uses:` to a commit SHA, never a tag or a branch** — actions and reusable
+  workflows alike, this organisation's own included — with the version in a trailing comment:
   `uses: actions/checkout@11d5960... # v4.4.0`. A tag can be repointed at new code with no
   diff and no notification. Copy `dependabot.template` in the same breath, or the pin
   rots. Watch for **annotated** tags - the tag ref's object sha is the tag object, not the
