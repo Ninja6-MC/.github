@@ -135,10 +135,12 @@ gates every other repository's pull requests, and the asset-sync GitHub App hold
 `contents: write` here. An unprotected `main` here is the widest hole in the organisation,
 not the narrowest.
 
-## `N6-CI-06` — third-party actions are pinned to a commit SHA
+## `N6-CI-06` — every `uses:` is pinned to a commit SHA
 
-Every `uses:` referencing an action outside this organisation names a 40-character commit
-SHA, with the human-readable version in a trailing comment:
+Every `uses:` names a 40-character commit SHA, with the human-readable version in a
+trailing comment. This covers actions and reusable workflows alike, and applies to this
+organisation's own reusable workflows as much as to anyone else's — see below for why the
+earlier exemption was reversed:
 
 ```yaml
 uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -179,9 +181,16 @@ a bad commit reaches nobody until a reviewed pull request in each repository mov
 The exemption was also written while the shared workflows were being brought up, when they
 changed eight times in two days and pinning genuinely would have been agony. They have
 since stabilised: every change after 26 August 2026 has been a grouped Dependabot action
-bump. Dependabot's `github-actions` ecosystem covers reusable workflow calls, so a pinned
-reference is maintained by machinery every repository already runs — while a `@main`
-reference is one it can never propose an update for, because a branch is not a version.
+bump. Dependabot's `github-actions` ecosystem covers reusable workflow calls, whereas a
+`@main` reference is one it can never propose an update for, because a branch is not a
+version.
+
+**That machinery is not running yet, and the rule should not pretend otherwise.**
+Dependabot resolves a SHA pin's successor from the referenced repository's tags or
+releases, and this repository has neither. Until it is tagged, these pins are maintained by
+hand and the trailing comment carries a date rather than a version. By this section's own
+standard — a pin without an updater is worse than no pin — that is a debt, not a resting
+state. Tag before relying on the claim above.
 
 **What this costs**, stated plainly so it is not rediscovered as a surprise: an urgent fix
 to a shared workflow no longer reaches every repository in one merge. It reaches them in
