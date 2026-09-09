@@ -86,7 +86,7 @@ jobs:
             echo "Pinned from job_workflow_ref."
           else
             REF="refs/heads/main"
-            echo "job_workflow_ref is empty; using main, which is what every stub pins."
+            echo "job_workflow_ref is empty; falling back to main. Stubs pin a SHA, so this fallback reads a NEWER register than the caller pinned."
           fi
 
           echo "ref=$REF" >> "$GITHUB_OUTPUT"

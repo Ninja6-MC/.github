@@ -159,9 +159,43 @@ that never pinned, because it has bought immutability and paid for it with invis
 through `/git/tags/{sha}` first. `actions/checkout`'s `v4` is lightweight and was usable
 directly; `ossf/scorecard-action` was not.
 
-The organisation's own reusable workflows are referenced `@main` deliberately and are
-**not** covered by this rule. Pinning them would defeat the point of maintaining the
-checks in one place, and they are not third-party code. Scorecard may still deduct for it.
+**The organisation's own reusable workflows are covered too, and are pinned the same
+way.** This reverses an earlier exemption, so the reasoning for the reversal is recorded
+here rather than in a commit message.
+
+The exemption argued that pinning would defeat the point of maintaining the checks in one
+place, and that the workflows are not third-party code. Both are true and neither turned
+out to be the deciding question. What decides it is blast radius: `dco.yml` and
+`standards.yml` are required status checks on every protected branch in the organisation,
+so the file that decides whether a pull request may merge lives in a different repository
+and, at `@main`, is whatever that branch holds at the instant the workflow starts. Third
+-party-ness was never the risk. Mutability was, and an in-house mutable ref with seven
+callers is a larger exposure than an outside action with one.
+
+This organisation has already had the failure. `fix(ci): drop the workflow-level read-all
+that broke every caller` reached all callers at once because they all read `main`. Pinned,
+a bad commit reaches nobody until a reviewed pull request in each repository moves the pin.
+
+The exemption was also written while the shared workflows were being brought up, when they
+changed eight times in two days and pinning genuinely would have been agony. They have
+since stabilised: every change after 26 August 2026 has been a grouped Dependabot action
+bump. Dependabot's `github-actions` ecosystem covers reusable workflow calls, so a pinned
+reference is maintained by machinery every repository already runs — while a `@main`
+reference is one it can never propose an update for, because a branch is not a version.
+
+**What this costs**, stated plainly so it is not rediscovered as a surprise: an urgent fix
+to a shared workflow no longer reaches every repository in one merge. It reaches them in
+one pull request each. Bump by hand when it is urgent rather than waiting for the weekly
+run. That is the trade — a gate that fails closed in one repository is recoverable, and a
+gate silently changed in all seven is not.
+
+**Enforcement of this half lands after the references do, and deliberately.**
+`check-standards.py` still skips any `uses:` beginning `Ninja6-MC/.github/`. Removing that
+skip while the repositories still reference `@main` would fail `Check Standards` on every
+one of them at once — which is the same org-wide breakage this rule exists to prevent, and
+the same ordering trap as renaming a required check before its callers adopt the new name.
+The skip is removed once the last reference is pinned, not before. Until then this half of
+the rule is `reviewed` rather than `automatic`.
 
 ## `N6-CI-07` — every workflow declares its permissions
 

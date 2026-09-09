@@ -51,11 +51,15 @@ on: pull_request
 
 jobs:
   dco:
-    uses: Ninja6-MC/.github/.github/workflows/dco.yml@main
+    uses: Ninja6-MC/.github/.github/workflows/dco.yml@9e70c6b8134e62f33ad1f55096d47c00b8edaacc # main @ 2026-09-01
 ```
 
-That three-line stub replaces ~60 lines of duplicated shell, and a fix to the check
-reaches every repo at once.
+That stub replaces ~60 lines of duplicated shell. **Pin it to a commit SHA, not to
+`@main`** — these workflows are required status checks, so an unpinned reference lets a
+single commit here change what gates merges in every repository at once. `N6-CI-06` in
+[`standards/ci.md`](standards/ci.md) carries the full reasoning, including what pinning
+costs. Dependabot proposes the bumps; copy the stub from
+[`templates/`](templates) rather than retyping it, so the pin travels with it.
 
 **Only genuinely identical jobs belong here.** The icon drift gates in `brand` and
 `SpiralGenesis` look like candidates and are not: they run different scripts against

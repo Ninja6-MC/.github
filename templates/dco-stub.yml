@@ -19,4 +19,4 @@ permissions:
 # startup with no jobs and no useful error.
 jobs:
   dco:
-    uses: Ninja6-MC/.github/.github/workflows/dco.yml@main
+    uses: Ninja6-MC/.github/.github/workflows/dco.yml@9e70c6b8134e62f33ad1f55096d47c00b8edaacc # main @ 2026-09-01
