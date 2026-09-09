@@ -30,4 +30,4 @@ jobs:
       actions: read
       contents: read
       id-token: write
-    uses: Ninja6-MC/.github/.github/workflows/scorecard.yml@main
+    uses: Ninja6-MC/.github/.github/workflows/scorecard.yml@9e70c6b8134e62f33ad1f55096d47c00b8edaacc # main @ 2026-09-01
