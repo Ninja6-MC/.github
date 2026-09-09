@@ -5,13 +5,16 @@ name: DCO
 # makes it enforceable rather than advisory.
 #
 # This is a REUSABLE workflow. Other Ninja6-MC repos call it rather than copying the
-# script, with a three-line stub of their own:
+# script, with a stub of their own - canonical copy in templates/dco-stub.yml, which is
+# where the pinned SHA comes from:
 #
 #     name: DCO
 #     on: pull_request
+#     permissions:
+#       contents: read
 #     jobs:
 #       dco:
-#         uses: Ninja6-MC/.github/.github/workflows/dco.yml@main   # yes, twice
+#         uses: Ninja6-MC/.github/.github/workflows/dco.yml@<sha>   # yes, twice
 #
 # A called workflow inherits the caller's event payload, so github.event.pull_request
 # below refers to the caller's PR, not to anything in this repo. That is why no inputs

@@ -9,16 +9,21 @@ Normative text for `N6-CI-01` … `N6-CI-03` and `N6-CI-05` … `N6-CI-08`. `N6-
 ## `N6-CI-01` — call the shared DCO check, do not copy it
 
 Every repository runs the DCO check by calling the reusable workflow in this repository.
-The whole file is:
+The whole file is, with the SHA taken from the canonical stub rather than retyped:
 
 ```yaml
 name: DCO
 
 on: pull_request
 
+# Caps what the called workflow may hold, so it has to cover what that workflow asks
+# for. `contents: read` is exactly enough (N6-CI-07).
+permissions:
+  contents: read
+
 jobs:
   dco:
-    uses: Ninja6-MC/.github/.github/workflows/dco.yml@main
+    uses: Ninja6-MC/.github/.github/workflows/dco.yml@<sha>  # main @ <date>
 ```
 
 The canonical copy is [`templates/dco-stub.yml`](../templates/dco-stub.yml). Copy it;
@@ -41,7 +46,7 @@ behaviour, change the shared workflow or record an exception — do not fork it 
 ## `N6-CI-02` — reusable references spell `.github` twice
 
 ```
-Ninja6-MC/.github/.github/workflows/dco.yml@main
+Ninja6-MC/.github/.github/workflows/dco.yml@<sha>
           ^^^^^^^ ^^^^^^^
           repo    directory
 ```
@@ -135,10 +140,12 @@ gates every other repository's pull requests, and the asset-sync GitHub App hold
 `contents: write` here. An unprotected `main` here is the widest hole in the organisation,
 not the narrowest.
 
-## `N6-CI-06` — third-party actions are pinned to a commit SHA
+## `N6-CI-06` — every `uses:` is pinned to a commit SHA
 
-Every `uses:` referencing an action outside this organisation names a 40-character commit
-SHA, with the human-readable version in a trailing comment:
+Every `uses:` names a 40-character commit SHA, with the human-readable version in a
+trailing comment. This covers actions and reusable workflows alike, and applies to this
+organisation's own reusable workflows as much as to anyone else's — see below for why the
+earlier exemption was reversed:
 
 ```yaml
 uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -179,9 +186,16 @@ a bad commit reaches nobody until a reviewed pull request in each repository mov
 The exemption was also written while the shared workflows were being brought up, when they
 changed eight times in two days and pinning genuinely would have been agony. They have
 since stabilised: every change after 26 August 2026 has been a grouped Dependabot action
-bump. Dependabot's `github-actions` ecosystem covers reusable workflow calls, so a pinned
-reference is maintained by machinery every repository already runs — while a `@main`
-reference is one it can never propose an update for, because a branch is not a version.
+bump. Dependabot's `github-actions` ecosystem covers reusable workflow calls, whereas a
+`@main` reference is one it can never propose an update for, because a branch is not a
+version.
+
+**That machinery is not running yet, and the rule should not pretend otherwise.**
+Dependabot resolves a SHA pin's successor from the referenced repository's tags or
+releases, and this repository has neither. Until it is tagged, these pins are maintained by
+hand and the trailing comment carries a date rather than a version. By this section's own
+standard — a pin without an updater is worse than no pin — that is a debt, not a resting
+state. Tag before relying on the claim above.
 
 **What this costs**, stated plainly so it is not rediscovered as a surprise: an urgent fix
 to a shared workflow no longer reaches every repository in one merge. It reaches them in
@@ -189,13 +203,24 @@ one pull request each. Bump by hand when it is urgent rather than waiting for th
 run. That is the trade — a gate that fails closed in one repository is recoverable, and a
 gate silently changed in all seven is not.
 
-**Enforcement of this half lands after the references do, and deliberately.**
-`check-standards.py` still skips any `uses:` beginning `Ninja6-MC/.github/`. Removing that
-skip while the repositories still reference `@main` would fail `Check Standards` on every
-one of them at once — which is the same org-wide breakage this rule exists to prevent, and
-the same ordering trap as renaming a required check before its callers adopt the new name.
-The skip is removed once the last reference is pinned, not before. Until then this half of
-the rule is `reviewed` rather than `automatic`.
+**What the pin does not cover, stated so it is not mistaken for more than it is.**
+`dco.yml` carries its script inline, so pinning it makes the DCO gate genuinely immutable.
+`standards.yml` does not: it checks out the register and `check-standards.py` from this
+repository at run time, preferring `github.job_workflow_ref` and falling back to
+`refs/heads/main`. GitHub leaves that variable empty today, so the code that decides
+whether a pull request merges is still read from `main` at job start. The resolver is
+written correctly and needs no change — once GitHub populates the variable, a pinned caller
+reads the register from its own pin, which is the intended behaviour and not a bug to fix.
+Until then the pin buys `standards.yml` a fixed *workflow* and a moving *checker*. That is
+still worth having, because the workflow is what holds the permissions grant and the
+checkout wiring, but it is half of what `dco.yml` gets.
+
+**Enforcement.** `check-standards.py` applies this rule to the organisation's own reusable
+workflows as it does to any other reference. It did not always: the skip was removed only
+once every repository had been pinned, because removing it earlier would have failed
+`Check Standards` on all of them at once — the same org-wide breakage this rule exists to
+prevent, and the same ordering trap as renaming a required check before its callers adopt
+the new name.
 
 ## `N6-CI-07` — every workflow declares its permissions
 

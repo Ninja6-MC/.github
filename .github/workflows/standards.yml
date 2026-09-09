@@ -11,9 +11,11 @@ name: Standards
 #
 #     name: Standards
 #     on: pull_request
+#     permissions:
+#       contents: read
 #     jobs:
 #       standards:
-#         uses: Ninja6-MC/.github/.github/workflows/standards.yml@main   # yes, twice
+#         uses: Ninja6-MC/.github/.github/workflows/standards.yml@<sha>   # yes, twice
 #
 # This check IS required, on every repository whose `main` can be protected. N6-CI-03: the
 # name it reports under depends on how the workflow was reached - `standards / Check
@@ -66,13 +68,14 @@ jobs:
       #   github.job_workflow_ref  also empty - logged as `job_workflow_ref = ''` on the
       #                            first green run
       #
-      # So main is the working path, not a degraded one, and it is correct for every
-      # caller today: every stub pins `@main`, and the register a repository is judged
-      # against should be the one the workflow it called was published from.
+      # So main is the working path today, and it is a DEGRADED one: every stub now pins
+      # a SHA (N6-CI-06), so the register read here is newer than the workflow the caller
+      # actually pinned. The gate is therefore a fixed workflow running a moving checker.
+      # Recorded in standards/ci.md under N6-CI-06 rather than silently tolerated.
       #
       # `job_workflow_ref` is still read first, so that if GitHub ever starts populating
-      # it - or if a caller pins a tag - the exact ref is used automatically. That is an
-      # optimisation, not the mechanism. It does not warn when it is empty, because a
+      # it - or if a caller pins a tag - the exact ref is used automatically, which is the
+      # behaviour the pinning rule assumes. It does not warn when it is empty, because a
       # warning that fires on every single run is noise, and noise is how real warnings
       # get ignored.
       - name: Resolve the register ref
