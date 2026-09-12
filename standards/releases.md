@@ -47,9 +47,10 @@ ship without one. `SpiralGenesis` established this and `Keyframe` mirrors it; th
 in both `release.yml` files and in the template.
 
 That gate is deliberately **not** part of `N6-REL-01`. It is a property of a workflow
-rather than of a repository, the two existing implementations differ in what they do with
+rather than of a repository, the existing implementations differ in what they do with
 the notes afterwards, and a rule asserting a specific script shape would be asserting more
-than has been agreed. Revisit once a third publishing repository exists.
+than has been agreed. Four repositories now publish releases; [.github#29](https://github.com/Ninja6-MC/.github/issues/29) tracks whether
+this gate should become a rule.
 
 ### Versioning is not specified here
 

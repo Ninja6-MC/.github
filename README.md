@@ -32,8 +32,8 @@ Three limits worth knowing before relying on this:
 * **Issue templates are the exception — they fall back per *directory*, not per file.**
   A repo that defines even one template of its own inherits *none* of the org ones,
   `config.yml` included - so blank issues stay enabled and the security contact link
-  disappears from the chooser, and nothing anywhere reports it. `SpiralGenesis` and
-  `SessionPulse` each define two templates and so each carries its own `config.yml`;
+  disappears from the chooser, and nothing anywhere reports it. `SpiralGenesis`, `SessionPulse` and `AntiSpeedrun` each define their own templates
+  and so each carries its own `config.yml`;
   there is no way to supply one from here. This is `N6-REPO-02`, and it is checked.
 
 So the defaults here mostly benefit the *next* repo. That is the point of writing them

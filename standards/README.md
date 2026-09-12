@@ -194,8 +194,11 @@ Adoption order, and why:
 3. **`brand`** — private, so several rules cannot apply to it at all; its file will be
    mostly `permanent` entries.
 4. **`SessionPulse`** — last, in a single pass, once the register has stopped moving.
+5. **`TextureStudio`** — adopted 2026-08-25, `exceptions: []`.
+6. **`Keyframe`** — adopted 2026-08-25, `exceptions: []`.
+7. **`AntiSpeedrun`** — adopted with `exceptions: []`.
 
-**Adoption is complete.** All four repositories carry an exceptions file and are measured
+**Adoption is complete.** All seven repositories carry an exceptions file and are measured
 by the `Standards` workflow.
 
 The gaps this section originally listed are all closed: `SpiralGenesis` and `SessionPulse`
