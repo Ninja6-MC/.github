@@ -47,8 +47,6 @@ updates:
       # commits - `Signed-off-by: dependabot[bot] <support@github.com>` - so its pull
       # requests pass the DCO check unaided. Verified 2026-08-20.
       prefix: ci
-    labels:
-      - dependencies
     # One pull request per group, so this is a backstop rather than a limit that shapes
     # anything. Ungrouped, it is what split the first batch.
     open-pull-requests-limit: 5
