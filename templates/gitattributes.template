@@ -31,12 +31,14 @@ gradlew.bat     text eol=crlf
 *.md            text eol=lf
 *.mjs           text eol=lf
 
-# Two files that no extension pattern reaches. LICENSE is extensionless by convention,
-# and a pattern for .gitattributes has to name it literally. Both check out CRLF without
-# these lines. Verify with `git ls-files --eol`, which reports index and working-tree
-# endings separately - grepping for CR does not reliably show it.
+# Files that no extension pattern reaches. LICENSE is extensionless by convention,
+# and dotfiles like .gitattributes, .gitignore, and .editorconfig have no extension
+# pattern that matches them across all git versions without naming them literally.
+# All check out CRLF without these lines. Verify with `git check-attr text eol -- <file>`.
 LICENSE         text eol=lf
 .gitattributes  text eol=lf
+.gitignore      text eol=lf
+.editorconfig   text eol=lf
 
 # Never apply end-of-line conversion to binaries.
 *.jar           binary
