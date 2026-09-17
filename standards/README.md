@@ -69,7 +69,7 @@ is real or the address reachable.
 | `N6-CI-02` | Reusable workflow references spell `.github` twice | [`ci.md`](ci.md) | documented |
 | `N6-CI-03` | A required status check must name a check that actually reports | [`ci.md`](ci.md) | documented |
 | `N6-CI-04` | Workflow YAML is committed with LF endings | [`repo-layout.md`](repo-layout.md) | automatic³ |
-| `N6-CI-05` | Public repositories protect `main`: pull request required, CI green, linear history, administrators included | [`ci.md`](ci.md) | reviewed |
+| `N6-CI-05` | Public repositories protect `main`: pull request required, CI green (via strict gate or merge queue), linear history, administrators included | [`ci.md`](ci.md) | reviewed |
 | `N6-CI-06` | Every action and reusable workflow is referenced by commit SHA, never by tag or branch — including this organisation's own | [`ci.md`](ci.md) | automatic³ |
 | `N6-CI-07` | Every workflow declares an explicit `permissions:` grant rather than running on the repository default | [`ci.md`](ci.md) | automatic³ |
 | `N6-CI-08` | A checkout that does not set an explicit `token:` sets `persist-credentials: false` | [`ci.md`](ci.md) | automatic³ |
@@ -162,6 +162,16 @@ should make visible.
 
 **Private repositories inherit nothing** from this repository — no health files, no issue
 templates. `N6-REPO-01` does not apply to them.
+
+**Tiered concurrency architecture.** Public repositories balance trunk stability with parallel
+PR throughput across three tiers:
+* **Tier 1 (`.github`)**: Classic strict branch protection (`strict: true`), requiring PRs to be
+  manually up-to-date with trunk.
+* **Tier 2 (Public consumer repos)**: Repository Rulesets with Merge Queues (`gh-readonly-queue/main/...`),
+  eliminating merge-race bottlenecks by testing speculative merge branches and setting classic
+  `strict: false`.
+* **Tier 3 (`brand`)**: Private repository on the Free plan, governed by client-side guard hooks
+  under permanent exception `N6-BRANCH-01`.
 
 ## 5. Changing a standard
 

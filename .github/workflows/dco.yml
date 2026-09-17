@@ -23,6 +23,7 @@ name: DCO
 on:
   workflow_call:
   pull_request:
+  merge_group:
 
 permissions:
   contents: read
@@ -45,16 +46,16 @@ jobs:
 
       - name: Verify Every Commit Is Signed Off
         env:
-          BASE: ${{ github.event.pull_request.base.sha }}
-          HEAD: ${{ github.event.pull_request.head.sha }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha }}
         run: |
-          # Both triggers above deliver a pull_request payload, but a caller could wire
-          # this into any event. Without this guard BASE and HEAD expand to empty
+          # The triggers above deliver a pull_request or merge_group payload, but a caller could
+          # wire this into any event. Without this guard BASE and HEAD expand to empty
           # strings and the rev-list below becomes `git rev-list --no-merges ..`, which
           # fails with a bare git error that says nothing about the actual mistake.
           if [ -z "$BASE" ] || [ -z "$HEAD" ]; then
-            echo "::error::No pull_request payload. This workflow must be called from a"
-            echo "pull_request event - see the caller stub in templates/dco-stub.yml."
+            echo "::error::No pull_request or merge_group payload. This workflow must be called from a"
+            echo "pull_request or merge_group event - see the caller stub in templates/dco-stub.yml."
             exit 1
           fi
 

@@ -14,7 +14,9 @@ The whole file is, with the SHA taken from the canonical stub rather than retype
 ```yaml
 name: DCO
 
-on: pull_request
+on:
+  pull_request:
+  merge_group:
 
 # Caps what the called workflow may hold, so it has to cover what that workflow asks
 # for. `contents: read` is exactly enough (N6-CI-07).
@@ -35,8 +37,8 @@ swapped for the stub during adoption. The swap is what renames the reported chec
 why it has to be sequenced against the required list; see `N6-CI-03`.
 
 This repository satisfies the rule by *hosting* the workflow rather than calling it. Its
-`dco.yml` carries both `workflow_call` and `pull_request` triggers, so its own pull
-requests are checked by the same script every other repository calls. That is
+`dco.yml` carries `workflow_call`, `pull_request` and `merge_group` triggers, so its own pull
+requests and merge groups are checked by the same script every other repository calls. That is
 compliance, not an exception.
 
 A local copy of the check is a standards violation even when its contents are correct,
@@ -93,6 +95,9 @@ repository calls them through a stub and gets `<job-id> / <job-name>`. Copying o
 repository's list to the other blocks every pull request on a name that will never report.
 
 Every name above was read off a real run before being required, not predicted.
+Workflows configured with `merge_group` report status checks under the exact same context names
+as `pull_request` runs (e.g. `dco / Check Sign-off`, `standards / Check Standards`, `Build and Test`),
+ensuring branch protection evaluates them identically whether triggered in a PR or within a merge queue.
 
 **`SessionPulse`'s `Committed Icons Match The Master` is deliberately absent**, and the
 reason generalises: it is **path-scoped**, so it does not run on a pull request that
@@ -109,6 +114,8 @@ commit, which fails twice over: it breaches `required_linear_history`, and it is
 authored by the bot, so the pipeline's foreign-commit guard then treats the branch as
 hand-edited and hard-fails that leg with "refusing to force-push over them". Always
 `gh pr update-branch --rebase`, which preserves the author address the guard matches on.
+In repositories operating under Tier 2 with Merge Queues, this friction is eliminated because
+speculative testing executes on isolated `gh-readonly-queue/main/...` branches.
 
 **Scorecard is deliberately absent.** It scores a repository rather than a diff, has no
 `pull_request` trigger, and therefore reports no check name at all on a pull request.
@@ -130,10 +137,27 @@ See [`repo-layout.md`](repo-layout.md#n6-ci-04--line-endings).
 Baseline for every public repository:
 
 * a pull request is required — no direct pushes
-* required status checks must pass, and the branch must be up to date
+* required status checks must pass (via strict gate or merge queue)
 * linear history required
 * administrators are included; the protection is not a suggestion for the owner
 * force-push and deletion disabled
+
+### Tiered Concurrency Architecture
+
+To eliminate the "merge race" serialization bottleneck when parallel worker subagents and
+contributors land changes simultaneously, public repositories operate under a tiered model:
+
+* **Tier 1 (Core Infrastructure — `.github`)**: Retains classic strict branch protection
+  (`strict: true`). Reusable workflows and org defaults have an org-wide blast radius, so PRs
+  must be manually up-to-date with trunk before merging.
+* **Tier 2 (High-Concurrency Consumer Repositories — Plugins & Tooling)**: Governed by
+  Repository Rulesets with GitHub Merge Queues (`merge_queue`). GitHub automatically constructs
+  speculative merge branches (`gh-readonly-queue/main/...`) and executes required checks via the
+  `merge_group` event. To prevent deadlocks with speculative queue builds, classic branch
+  protection sets `strict: false`.
+* **Tier 3 (Private Identity Repository — `brand`)**: Private repository on the Free plan where
+  GitHub server-side protection is unavailable. Governed by client-side pre-commit guard hooks
+  under registered permanent exception `N6-BRANCH-01`.
 
 Private repositories cannot do any of this on the Free plan. See
 [`README.md` §4](README.md#4-where-a-standard-cannot-apply).
