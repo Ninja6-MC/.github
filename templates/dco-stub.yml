@@ -2,7 +2,9 @@
 # check itself lives in Ninja6-MC/.github and is maintained in one place.
 name: DCO
 
-on: pull_request
+on:
+  pull_request:
+  merge_group:
 
 # The caller's top-level grant. A called workflow's permissions are CAPPED by what the
 # caller grants, so this has to cover what the reusable workflow asks for - it requests

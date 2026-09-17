@@ -30,6 +30,7 @@ name: Standards
 on:
   workflow_call:
   pull_request:
+  merge_group:
 
 permissions:
   contents: read
@@ -113,8 +114,8 @@ jobs:
         working-directory: repo
         env:
           REPO: ${{ github.repository }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha }}
         run: |
           # Same condition as the two steps above, and it has to stay in step with them:
           # `register/` exists only when this repository is not the one under test.
