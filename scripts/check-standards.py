@@ -82,10 +82,12 @@ def git(*args):
 
 def local_repo_name():
     """Repository name when REPO is unset. The cwd basename is wrong in a git worktree,
-    so prefer the origin URL (https, ssh or local path form). Without an origin, use the
-    directory holding the shared git dir, which names the main checkout even from a
-    worktree; then the toplevel directory name, then the cwd basename."""
-    url = (git("remote", "get-url", "origin") or "").strip().rstrip("/\\")
+    so prefer the origin URL (https, ssh or local path form, including a path to the
+    .git dir itself). Without an origin, derive it from the shared git dir: the parent of
+    <checkout>/.git, the module name of a submodule's .git/modules/<name>, or a bare
+    repo's own name less .git. Then the toplevel directory name, then the cwd basename."""
+    url = (git("remote", "get-url", "origin") or "").strip()
+    url = re.sub(r"([/\\]+\.git)?[/\\]*$", "", url)
     if url:
         name = re.split(r"[/\\:]", url)[-1]
         if name.endswith(".git"):
@@ -94,7 +96,14 @@ def local_repo_name():
             return name
     common = (git("rev-parse", "--path-format=absolute", "--git-common-dir") or "").strip()
     if common:
-        name = os.path.basename(os.path.dirname(os.path.normpath(common)))
+        common = os.path.normpath(common)
+        parts = re.split(r"[/\\]", common)
+        name = os.path.basename(common)
+        if name == ".git":
+            name = os.path.basename(os.path.dirname(common))
+        elif not any(a == ".git" and b == "modules" for a, b in zip(parts, parts[1:-1])):
+            if name.endswith(".git"):
+                name = name[:-4]
         if name:
             return name
     top = (git("rev-parse", "--show-toplevel") or "").strip()
