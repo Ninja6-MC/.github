@@ -80,6 +80,20 @@ def git(*args):
     return out.decode("utf-8", "replace")
 
 
+def local_repo_name():
+    """Repository name when REPO is unset. The cwd basename is wrong in a git worktree,
+    so prefer the origin URL (https or ssh form), then the toplevel directory name."""
+    url = (git("remote", "get-url", "origin") or "").strip().rstrip("/")
+    if url:
+        name = re.split(r"[/:]", url)[-1]
+        if name.endswith(".git"):
+            name = name[:-4]
+        if name:
+            return name
+    top = (git("rev-parse", "--show-toplevel") or "").strip()
+    return os.path.basename(top) if top else os.path.basename(os.getcwd())
+
+
 def load_yaml(path):
     """Return (data, error). Reads bytes and decodes explicitly: a Windows-authored file
     can carry a BOM, and yaml.safe_load on a str that starts with one fails with a
@@ -717,7 +731,7 @@ def main():
         return 2
 
     full = os.environ.get("REPO", "")
-    repo = full.split("/")[-1] if full else os.path.basename(os.getcwd())
+    repo = full.split("/")[-1] if full else local_repo_name()
 
     valid_rules = known_rule_ids(register_dir)
     if not valid_rules:
