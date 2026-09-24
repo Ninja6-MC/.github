@@ -82,12 +82,19 @@ def git(*args):
 
 def local_repo_name():
     """Repository name when REPO is unset. The cwd basename is wrong in a git worktree,
-    so prefer the origin URL (https or ssh form), then the toplevel directory name."""
-    url = (git("remote", "get-url", "origin") or "").strip().rstrip("/")
+    so prefer the origin URL (https, ssh or local path form). Without an origin, use the
+    directory holding the shared git dir, which names the main checkout even from a
+    worktree; then the toplevel directory name, then the cwd basename."""
+    url = (git("remote", "get-url", "origin") or "").strip().rstrip("/\\")
     if url:
-        name = re.split(r"[/:]", url)[-1]
+        name = re.split(r"[/\\:]", url)[-1]
         if name.endswith(".git"):
             name = name[:-4]
+        if name:
+            return name
+    common = (git("rev-parse", "--path-format=absolute", "--git-common-dir") or "").strip()
+    if common:
+        name = os.path.basename(os.path.dirname(os.path.normpath(common)))
         if name:
             return name
     top = (git("rev-parse", "--show-toplevel") or "").strip()
