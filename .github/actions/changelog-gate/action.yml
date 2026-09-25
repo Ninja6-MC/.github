@@ -1,0 +1,25 @@
+name: Changelog Gate
+description: Require a non-empty changelog section for stable releases.
+
+inputs:
+  version:
+    description: >-
+      Resolved release version without the tag prefix. Required for stable
+      releases; check.sh enforces this when prerelease is false, so it is
+      not marked required here to avoid forcing prerelease callers to pass
+      a dummy value.
+    required: false
+    default: ''
+  prerelease:
+    description: Whether the resolved release is a prerelease (`true` or `false`).
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Require stable changelog section
+      shell: bash
+      env:
+        CHANGELOG_GATE_VERSION: ${{ inputs.version }}
+        CHANGELOG_GATE_PRERELEASE: ${{ inputs.prerelease }}
+      run: bash "$GITHUB_ACTION_PATH/check.sh"
