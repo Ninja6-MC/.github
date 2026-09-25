@@ -4,6 +4,7 @@
 # them, which would show every synced file as modified on a clean checkout.
 *.yml           text eol=lf
 *.yaml          text eol=lf
+*.sh            text eol=lf
 *.md            text eol=lf
 *.editorconfig  text eol=lf
 *.py            text eol=lf
