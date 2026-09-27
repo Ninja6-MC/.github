@@ -63,16 +63,19 @@ git push origin vX.Y.Z
 
 <!-- Record where the manifest lives, retention duration, unique candidate ID,
      source SHA, tag/version/channel, run ID and attempt, exact file list and
-     SHA-256 digests, destinations and artifact-test result. Explain how the
-     verification and publish jobs download and check the same candidate. Explain
-     how publication checks that the tag still resolves to the source SHA. -->
+     SHA-256 digests, destinations and artifact-test result. Name the embedded
+     version and expected-content checks performed on each downloaded JAR or ZIP
+     before its artifact tests. Explain how verification and publication download
+     and check the same candidate, including the tag-to-source SHA check. -->
 
 ### Step 5: Publication and recovery
 
-<!-- Name the protected release environment and required approval. List destination
-     order and the check for already-published bytes at each destination. Describe
-     retry of missing destinations from the retained candidate and how a partial or
-     uncertain publication is reconciled. Include pre-release/latest flag rules. -->
+<!-- Name the protected release environment and required approval. Keep publishing
+     credentials there and write permissions only in the gated publisher job.
+     List destination order and the check for already-published bytes at each
+     destination. Describe retry of missing destinations from the retained
+     candidate and how a partial or uncertain publication is reconciled. Include
+     pre-release/latest flag rules. -->
 
 ## 4. Repository Secrets
 

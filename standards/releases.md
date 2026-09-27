@@ -87,10 +87,13 @@ a later rebuild for this candidate during publication.
 
 The verification stage downloads the retained candidate files and manifest. It
 checks the complete file list, the digest of every file, the candidate identifier,
-source commit, intended version and channel, then runs the repository's relevant
-artifact tests on those downloaded bytes. Source tests during the build remain
-useful, but do not prove that the downloadable JAR or ZIP is sound. Record the
-verification run and its result against the candidate identifier and digests.
+source commit, intended version and channel. It inspects each downloaded artifact's
+embedded version and expected contents (for example a plugin descriptor inside a
+JAR or pack metadata and file inventory inside a ZIP) against the intended release,
+and fails on a mismatch before running the repository's relevant artifact tests
+on those same downloaded bytes. Source tests during the build remain useful, but
+do not prove that the downloadable JAR or ZIP is sound. Record the verification
+run and its result against the candidate identifier and digests.
 If a test cannot inspect a finished artifact directly, document how it exercises
 that artifact's contents and what gap remains for review.
 
@@ -99,6 +102,11 @@ that artifact's contents and what gap remains for review.
 All public release publication waits behind a protected `release` environment
 with a required maintainer approval, including a GitHub-only release. The
 environment gate applies to the job holding publication permissions and secrets.
+Publishing credentials other than the job-scoped `GITHUB_TOKEN` must be scoped to
+that protected environment, never provided as equivalent repository or
+organisation secrets to the candidate or verification jobs. Grant write
+permissions to `GITHUB_TOKEN` only in the gated publisher job; candidate and
+verification jobs use read permissions and receive no publishing credentials.
 Approval is for the particular verified candidate and its declared destinations;
 it is not a substitute for the checks below. Do not approve a deployment from
 automation. The external-registry gate tracked in
@@ -147,12 +155,16 @@ transitional exceptions until their publication paths satisfy it.
 
 ### Rollout
 
-At adoption, `SpiralGenesis`, `SessionPulse` and `Keyframe` have release publishers
-that need implementation work. Each must record a `transitional` `N6-REL-03`
-exception in its own `.github/standards-exceptions.yml` immediately after this
-rule lands, then remove the exception only after its full release path and
-protected environment are verified. The standards checker validates exception
-IDs against the merged register, so these entries cannot land before the rule.
-The exception records the temporary gap; it does not make an unverified release
-safe to publish. `AntiSpeedrun`, `TextureStudio`, `brand` and `.github` have no
-release-artifact publisher at this point and need no `N6-REL-03` exception.
+For `SpiralGenesis`, `SessionPulse` and `Keyframe`, whose release publishers
+predate this rule, `N6-REL-03` becomes applicable on **2026-10-04**. This staged
+date permits their `transitional` exceptions to land after the identifier enters
+the register but before the rule binds those repositories. By 2026-10-04, each
+must either complete and verify its full release path and environment settings,
+or record a `transitional` `N6-REL-03` exception in its own
+`.github/standards-exceptions.yml`; remove that exception only upon compliance.
+The standards checker rejects unregistered exception IDs, so those entries
+cannot land before this rule. A new release publisher created after this rule
+lands is covered from its first publication. The staged date and an exception
+record the temporary gap; neither makes an unverified release safe to publish.
+`AntiSpeedrun`, `TextureStudio`, `brand` and `.github` have no release-artifact
+publisher at this point and need no `N6-REL-03` exception.
