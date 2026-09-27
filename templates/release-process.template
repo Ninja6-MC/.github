@@ -5,6 +5,7 @@ This document defines the versioning rules, release channels and publishing proc
 
 Copy to `RELEASE_PROCESS.md` in the repository root. `N6-REL-01` requires it in any
 repository whose workflows can publish a release, alongside `CHANGELOG.md`.
+`N6-REL-03` also requires a build-once, test-before-publication promotion path.
 
 Everything in angle brackets is a per-repo decision. **Delete the guidance comments as you
 fill them in** - a template left half-answered reads as a decision that was made.
@@ -54,7 +55,27 @@ git push origin vX.Y.Z
 
 ### Step 3: Automated CI actions
 
-<!-- What the release workflow does, in order, and where the artefacts land. -->
+<!-- Describe the build, candidate retention, download-and-test, required release
+     environment approval, and publish jobs in order. Identify the exact artifact
+     tests, not only source tests. The publish job must not build or repackage. -->
+
+### Step 4: Candidate identity and evidence
+
+<!-- Record where the manifest lives, retention duration, unique candidate ID,
+     source SHA, tag/version/channel, run ID and attempt, exact file list and
+     SHA-256 digests, destinations and artifact-test result. Name the embedded
+     version and expected-content checks performed on each downloaded JAR or ZIP
+     before its artifact tests. Explain how verification and publication download
+     and check the same candidate, including the tag-to-source SHA check. -->
+
+### Step 5: Publication and recovery
+
+<!-- Name the protected release environment and required approval. Keep publishing
+     credentials there and write permissions only in the gated publisher job.
+     List destination order and the check for already-published bytes at each
+     destination. Describe retry of missing destinations from the retained
+     candidate and how a partial or uncertain publication is reconciled. Include
+     pre-release/latest flag rules. -->
 
 ## 4. Repository Secrets
 
