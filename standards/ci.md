@@ -1,6 +1,6 @@
 # CI standards
 
-Normative text for `N6-CI-01` … `N6-CI-03` and `N6-CI-05` … `N6-CI-08`. `N6-CI-04` lives in
+Normative text for `N6-CI-01` … `N6-CI-03` and `N6-CI-05` … `N6-CI-09`. `N6-CI-04` lives in
 [`repo-layout.md`](repo-layout.md#n6-ci-04--line-endings). The register is in
 [`README.md`](README.md).
 
@@ -294,3 +294,44 @@ a comment beside each says which is which.
 
 It matters most in a job holding `contents: write` and running a third-party action — the
 publish path — which is exactly where it was missing when this rule was written.
+
+## `N6-CI-09` — CI snapshot JARs identify the built commit
+
+This rule applies to CI builds of deployable Java plugin JARs. A snapshot installed on a
+server must identify the source that CI actually built, both in its filename and in the
+JAR's embedded `plugin.yml` `version:` field. It applies when a snapshot workflow is
+introduced or changed; existing workflows are adopted through repository follow-up
+issues. At adoption, record a transitional exception if the workflow still needs work,
+as required by the register's [change procedure](README.md#5-changing-a-standard).
+
+Derive the snapshot version from the checked-out build commit (`HEAD`), which can be a
+synthetic pull-request merge commit. Fetch enough history and tags to select the nearest
+**reachable** tag whose complete name matches that repository's release workflow's
+accepted tag format. A similarly named but malformed tag is not a version source, nor
+is a valid tag that is not an ancestor of the build commit. For example,
+`SpiralGenesis` accepts `^v[0-9]+\.[0-9]+\.[0-9]+(?:-(?:alpha|beta|rc)\.[0-9]+)?$`;
+its tested selector filters `git tag --merged HEAD` before using `git describe --long`.
+Other plugin repositories must use their own release-valid tag formats.
+
+Convert the selected tag to a plugin base version using the same transformation as that
+repository's release workflow, then always append the long-form Git distance and short
+commit identity. For SpiralGenesis, the transformation strips the leading `v`: a build
+at `v1.0.0-alpha.2` is `1.0.0-alpha.2-0-g<hash>`, and a build six commits after it is
+`1.0.0-alpha.2-6-g<hash>`. Do not let `git describe` collapse an exact tag to the bare
+release version. If no release-valid tag is reachable, use
+`0.0.0-SNAPSHOT-g<hash>`. The hash must come from the commit built by that CI run,
+not from a pull-request branch tip when CI checked out its merge commit.
+
+Pass the computed snapshot version to the build. After packaging, enumerate the actual
+deployable plugin JARs and compare them with the expected artifact set. Fail CI for a
+missing, duplicate, or unexpected deployable JAR. For each expected JAR, verify that its
+filename equals the repository's expected plugin JAR name with the snapshot version and
+that its embedded `plugin.yml` has that same `version:` value. Testing only the version
+selector does not establish that the build propagated the value to both outputs.
+
+This is a CI snapshot convention, not a release-version change. A tagged release build
+continues to use its clean, release-workflow-derived version, such as
+`1.0.0-alpha.2`, and the release workflow's existing validation and publishing path.
+SpiralGenesis ([#177](https://github.com/Ninja6-MC/SpiralGenesis/pull/177),
+[#179](https://github.com/Ninja6-MC/SpiralGenesis/pull/179)) established the tag selection,
+commit suffix, and fallback behavior; artifact assertions complete the standard.

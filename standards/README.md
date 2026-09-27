@@ -73,6 +73,7 @@ is real or the address reachable.
 | `N6-CI-06` | Every action and reusable workflow is referenced by commit SHA, never by tag or branch — including this organisation's own | [`ci.md`](ci.md) | automatic³ |
 | `N6-CI-07` | Every workflow declares an explicit `permissions:` grant rather than running on the repository default | [`ci.md`](ci.md) | automatic³ |
 | `N6-CI-08` | A checkout that does not set an explicit `token:` sets `persist-credentials: false` | [`ci.md`](ci.md) | automatic³ |
+| `N6-CI-09` | CI snapshot JARs for deployable Java plugins identify their source commit, use only reachable release-valid tags, and verify the packaged version | [`ci.md`](ci.md) | reviewed |
 
 ### Repository contents
 
