@@ -19,7 +19,7 @@ copy.**
 | `standards-stub.yml` | `.github/workflows/standards.yml` | Calls the reusable standards check. Add it when the repo adopts the register, not before. |
 | `dependabot.template` | `.github/dependabot.yml`, **renamed** | Keeps SHA-pinned actions current. Grouped, with majors split out. Inert at this path, but suffixed like the other copies so nobody has to check whether it is live config for this repo. |
 | `scorecard-stub.yml` | `.github/workflows/scorecard.yml` | Calls the reusable OpenSSF Scorecard run. **Public repos only** — private repos cannot publish results or upload SARIF on the Free plan. |
-| `release-process.template` | `RELEASE_PROCESS.md`, **renamed** | Required by `N6-REL-01` in any repo that can publish a release. A skeleton with the decisions marked, not a document to copy unread. |
+| `release-process.template` | `RELEASE_PROCESS.md`, **renamed** | Required by `N6-REL-01` in any repo that can publish a release. Its candidate and promotion sections guide `N6-REL-03`; fill in repository-specific decisions rather than copying unread. |
 
 Not templated, and why:
 

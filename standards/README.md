@@ -90,6 +90,7 @@ is real or the address reachable.
 | ID | Rule | Normative text | Enforcement |
 | :--- | :--- | :--- | :--- |
 | `N6-REL-01` | A repository whose workflows can publish a release carries `RELEASE_PROCESS.md` and `CHANGELOG.md` | [`releases.md`](releases.md) | automatic³ |
+| `N6-REL-03` | Public release artifacts are built once, tested as candidate bytes, approved, and promoted unchanged | [`releases.md`](releases.md) | reviewed⁴ |
 
 ³ Checked by the `Standards` workflow in this repository
 ([`.github/workflows/standards.yml`](../.github/workflows/standards.yml), logic in
@@ -101,6 +102,11 @@ merge rather than waiting for a reviewer to notice it.
 `brand` is the exception, and it is already recorded as one: the check runs and reports
 there, but a private repository on the Free plan cannot have branch protection at all, so
 nothing can be required. That is its `permanent` `N6-BRANCH-01` entry.
+
+⁴ Review the release workflow, its environment protection and its runtime evidence.
+The shared Standards check cannot prove that uploaded bytes were the ones tested or
+that a later publish job used them unchanged. Each publisher must enforce the
+checks described in `releases.md` at runtime; reviewers verify that wiring.
 
 The workflow is exception-aware: a failure whose rule has an entry in the repository's
 `standards-exceptions.yml` is reported as a notice and does not fail the run. `N6-REPO-05`
