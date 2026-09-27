@@ -155,13 +155,16 @@ transitional exceptions until their publication paths satisfy it.
 
 ### Rollout
 
-For `SpiralGenesis`, `SessionPulse` and `Keyframe`, whose release publishers
-predate this rule, `N6-REL-03` becomes applicable on **2026-10-04**. This staged
-date permits their `transitional` exceptions to land after the identifier enters
-the register but before the rule binds those repositories. By 2026-10-04, each
-must either complete and verify its full release path and environment settings,
-or record a `transitional` `N6-REL-03` exception in its own
-`.github/standards-exceptions.yml`; remove that exception only upon compliance.
+For [SpiralGenesis #180](https://github.com/Ninja6-MC/SpiralGenesis/issues/180),
+[SessionPulse #82](https://github.com/Ninja6-MC/SessionPulse/issues/82) and
+[Keyframe #242](https://github.com/Ninja6-MC/Keyframe/issues/242), whose release
+publishers predate this rule, `N6-REL-03` becomes applicable on
+**2026-10-04**. This staged date permits their `transitional` exceptions to land
+after the identifier enters the register but before the rule binds those
+repositories. By 2026-10-04, each must either complete and verify its full
+release path and environment settings, or record a `transitional` `N6-REL-03`
+exception in its own `.github/standards-exceptions.yml`; remove that exception
+only upon compliance.
 The standards checker rejects unregistered exception IDs, so those entries
 cannot land before this rule. A new release publisher created after this rule
 lands is covered from its first publication. The staged date and an exception
