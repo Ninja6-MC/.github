@@ -313,23 +313,25 @@ is a valid tag that is not an ancestor of the build commit. For example,
 its tested selector filters `git tag --merged HEAD` before using `git describe --long`.
 Other plugin repositories must use their own release-valid tag formats.
 
-Strip the tag's leading `v` for the plugin version, and always append the long-form Git
-distance and short commit identity: a build at `v1.0.0-alpha.2` is
-`1.0.0-alpha.2-0-g<hash>`, and a build six commits after it is
+Convert the selected tag to a plugin base version using the same transformation as that
+repository's release workflow, then always append the long-form Git distance and short
+commit identity. For SpiralGenesis, the transformation strips the leading `v`: a build
+at `v1.0.0-alpha.2` is `1.0.0-alpha.2-0-g<hash>`, and a build six commits after it is
 `1.0.0-alpha.2-6-g<hash>`. Do not let `git describe` collapse an exact tag to the bare
 release version. If no release-valid tag is reachable, use
 `0.0.0-SNAPSHOT-g<hash>`. The hash must come from the commit built by that CI run,
 not from a pull-request branch tip when CI checked out its merge commit.
 
-Pass the computed snapshot version to the build. After packaging, inspect the actual
-JAR and fail CI unless its filename equals the repository's expected plugin JAR name
-with that snapshot version and its embedded `plugin.yml` has that same `version:` value.
-Testing only the version selector does not establish that the build propagated the
-value to both outputs.
+Pass the computed snapshot version to the build. After packaging, enumerate the actual
+deployable plugin JARs and compare them with the expected artifact set. Fail CI for a
+missing, duplicate, or unexpected deployable JAR. For each expected JAR, verify that its
+filename equals the repository's expected plugin JAR name with the snapshot version and
+that its embedded `plugin.yml` has that same `version:` value. Testing only the version
+selector does not establish that the build propagated the value to both outputs.
 
 This is a CI snapshot convention, not a release-version change. A tagged release build
-continues to use its clean tag-derived version, such as `1.0.0-alpha.2`, and the release
-workflow's existing validation and publishing path. SpiralGenesis
-([#177](https://github.com/Ninja6-MC/SpiralGenesis/pull/177),
+continues to use its clean, release-workflow-derived version, such as
+`1.0.0-alpha.2`, and the release workflow's existing validation and publishing path.
+SpiralGenesis ([#177](https://github.com/Ninja6-MC/SpiralGenesis/pull/177),
 [#179](https://github.com/Ninja6-MC/SpiralGenesis/pull/179)) established the tag selection,
 commit suffix, and fallback behavior; artifact assertions complete the standard.
