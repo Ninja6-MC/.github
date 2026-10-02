@@ -16,7 +16,8 @@ NOW = datetime(2026, 10, 2, 12, tzinfo=timezone.utc)
 
 
 def state():
-    return {"version": 1, "started_at": "2026-10-01T00:00:00Z", "deliveries": {}, "health": {}}
+    return {"version": 1, "started_at": "2026-10-01T00:00:00Z", "deliveries": {}, "health": {},
+            "release_baseline": {}}
 
 
 def run(**overrides):
@@ -104,11 +105,49 @@ class RoutingTests(unittest.TestCase):
 
     def test_delivery_ids_survive_reruns_and_retries_remain_candidates(self):
         current = state()
-        current["deliveries"]["SpiralGenesis:release:30"] = {
+        current["deliveries"]["SpiralGenesis:release:30:prerelease"] = {
             "status": "sent", "destination": "dev", "recorded_at": "2026-10-02T00:00:00Z"}
         self.assertEqual(self.candidates(releases=[release()], current=current), [])
-        current["deliveries"]["SpiralGenesis:release:30"]["status"] = "retry"
+        current["deliveries"]["SpiralGenesis:release:30:prerelease"]["status"] = "retry"
         self.assertEqual(len(self.candidates(releases=[release()], current=current)), 1)
+
+    def test_stable_promotion_notifies_once_after_prerelease_delivery(self):
+        current = state()
+        current["deliveries"]["SpiralGenesis:release:30:prerelease"] = {
+            "status": "sent", "destination": "dev", "recorded_at": "2026-10-02T00:00:00Z",
+            "message_id": "123"}
+        result = self.candidates(releases=[release(prerelease=False)], current=current)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0][0], "SpiralGenesis:release:30:stable")
+        self.assertEqual(result[0][1], "release")
+        current["deliveries"][result[0][0]] = {
+            "status": "sent", "destination": "release", "recorded_at": "2026-10-02T00:00:00Z",
+            "message_id": "124"}
+        self.assertEqual(self.candidates(releases=[release(prerelease=True)], current=current), [])
+        self.assertEqual(self.candidates(releases=[release(prerelease=False)], current=current), [])
+
+    def test_baseline_is_silent_but_old_prerelease_promotion_is_announced(self):
+        old = release(published_at="2026-09-01T00:00:00Z")
+        current = {"version": 1}
+        feeds.initialize_baseline(current, {"SpiralGenesis": {"releases": [old]}}, NOW)
+        feeds.validate_state(current)
+        self.assertEqual(self.candidates(releases=[old], current=current), [])
+        promoted = dict(old, prerelease=False, updated_at="2026-10-03T00:00:00Z")
+        result = self.candidates(releases=[promoted], current=current)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0][1], "release")
+        current["deliveries"][result[0][0]] = {
+            "status": "sent", "destination": "release", "recorded_at": "2026-10-03T00:00:00Z",
+            "message_id": "124"}
+        self.assertEqual(self.candidates(releases=[old], current=current), [])
+        self.assertEqual(self.candidates(releases=[promoted], current=current), [])
+
+    def test_baseline_stable_history_is_silent_and_untracked_old_history_is_excluded(self):
+        old = release(prerelease=False, published_at="2026-09-01T00:00:00Z")
+        current = {"version": 1}
+        feeds.initialize_baseline(current, {"SpiralGenesis": {"releases": [old]}}, NOW)
+        self.assertEqual(self.candidates(releases=[old], current=current), [])
+        self.assertEqual(self.candidates(releases=[dict(old, id=31)], current=current), [])
 
     def test_api_filter_rejects_pr_fork_and_unrelated_workflow(self):
         api = FakeAPI()
@@ -126,7 +165,7 @@ class DeliveryTests(unittest.TestCase):
     def setUp(self):
         self.api = FakeAPI()
         self.store = Store()
-        self.key = "SpiralGenesis:release:30"
+        self.key = "SpiralGenesis:release:30:prerelease"
         self.events = [(self.key, "dev", feeds.payload("release", "details", "https://github.com"))]
 
     def test_pending_intent_precedes_send_and_confirmed_state_deduplicates(self):

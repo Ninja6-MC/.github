@@ -22,8 +22,11 @@ the run/artifact and mention GitHub sign-in and seven-day CI retention.
 
 Release notifications require uploaded nonempty plugin JAR and matching SHA-256
 assets. They link to verified GitHub publication, without claiming availability
-on other stores. Release IDs deduplicate publication, including tags that look
-stable but are marked prereleases. Reading actual release metadata also works
+on other stores. Release IDs plus stage deduplicate publication, including tags that look
+stable but are marked prereleases. Promotion of the same release from prerelease
+to stable produces one stable announcement. Demotion and repeated promotion do
+not repeat a stage already announced or suppressed in the initial baseline.
+Reading actual release metadata also works
 when publication used `GITHUB_TOKEN` or later store publication failed.
 
 Only the newest completed main CI run changes the current failure/recovery state.
@@ -46,9 +49,12 @@ included until suitable artifact pipelines are established.
    to keep runtime state separate from source. State initialization commits and
    subsequent manual edits must carry the maintainer's identity and DCO sign-off.
 3. After the source PR is reviewed and merged, dispatch `monitor` once. The first
-   run records a UTC starting timestamp and sends nothing from historical runs
-   or releases. Runs created before that timestamp remain excluded, even if they
-   finish afterwards. Future releases are selected by publication timestamp.
+   run records a UTC starting timestamp and existing public release stages,
+   sending nothing from historical runs or releases. Runs created before that
+   timestamp remain excluded, even if they finish afterwards. New releases are
+   selected by publication timestamp. Existing baselined releases can still
+   produce a later stage announcement even when their publication timestamp
+   remains unchanged during promotion.
 4. Dispatch `preview` to inspect candidates without changing state or sending
    messages. Verify a representative new build/release and member channel access
    before treating setup as complete.
@@ -57,7 +63,8 @@ The monitor has `contents: write` only on its own repository. All state requests
 target the exact branch and path above, never `main`. Serialized workflow runs
 and Contents API SHA comparisons prevent concurrent state overwrites. State
 contains only public project/event identifiers, UTC times, delivery status,
-Discord message IDs, and confirmed CI health; no message bodies or credentials.
+Discord message IDs, initial release stages, and confirmed CI health; no message
+bodies or credentials.
 State is written only when it changes. Deleting/resetting state can permit replay;
 preserve it when repairing configuration. Delivery records are not automatically
 pruned, so the file should be monitored for growth.

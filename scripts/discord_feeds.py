@@ -36,16 +36,21 @@ def stamp(value):
 
 
 def validate_state(state):
-    if set(state) - {"version", "started_at", "deliveries", "health"} or state.get("version") != 1:
+    if set(state) - {"version", "started_at", "deliveries", "health", "release_baseline"} or state.get("version") != 1:
         raise ValueError("Unsupported feed state")
     if state.get("started_at"):
         instant(state["started_at"])
     for project, health in state.get("health", {}).items():
         if project not in PROJECTS or health not in ("healthy", "failed"):
             raise ValueError("Invalid health state")
+    for key, stage in state.get("release_baseline", {}).items():
+        if not re.fullmatch(r"(SpiralGenesis|SessionPulse|AntiSpeedrun):release:[0-9]+", key):
+            raise ValueError("Invalid baseline release identity")
+        if stage not in ("prerelease", "stable"):
+            raise ValueError("Invalid baseline release stage")
     for key, entry in state.get("deliveries", {}).items():
         if not re.fullmatch(r"(SpiralGenesis|SessionPulse|AntiSpeedrun):"
-                           r"(release:[0-9]+|build:[0-9]+|health:[0-9]+:[0-9]+:(healthy|failed))", key):
+                           r"(release:[0-9]+:(prerelease|stable)|build:[0-9]+|health:[0-9]+:[0-9]+:(healthy|failed))", key):
             raise ValueError("Invalid delivery identity")
         if set(entry) - {"status", "destination", "recorded_at", "retry_after", "message_id"}:
             raise ValueError("Unexpected delivery data")
@@ -180,6 +185,19 @@ def payload(title, text, url):
         {"title": title[:256], "description": text[:4096], "url": url}]}
 
 
+def initialize_baseline(state, metadata, now):
+    baseline = {}
+    for name, project in metadata.items():
+        for release in project["releases"]:
+            if release.get("draft") or not release.get("published_at"):
+                continue
+            if not isinstance(release.get("prerelease"), bool):
+                raise ValueError("Missing release stage metadata")
+            key = f"{name}:release:{int(release['id'])}"
+            baseline[key] = "prerelease" if release["prerelease"] else "stable"
+    state.update(started_at=stamp(now), deliveries={}, health={}, release_baseline=baseline)
+
+
 def candidates(api, metadata, state, now):
     output = []
     cutoff = instant(state["started_at"])
@@ -188,9 +206,17 @@ def candidates(api, metadata, state, now):
         for release in project["releases"]:
             if release.get("draft") or not release.get("published_at"):
                 continue
-            if instant(release["published_at"]) <= cutoff:
+            if not isinstance(release.get("prerelease"), bool):
+                raise ValueError("Missing release stage metadata")
+            stage_id = "prerelease" if release["prerelease"] else "stable"
+            release_id = f"{name}:release:{int(release['id'])}"
+            baseline_stage = state.get("release_baseline", {}).get(release_id)
+            # Historical releases are silent, but a baselined release can change stage
+            # without GitHub changing its original publication timestamp.
+            if baseline_stage == stage_id or (baseline_stage is None and
+                                              instant(release["published_at"]) <= cutoff):
                 continue
-            key = f"{name}:release:{int(release['id'])}"
+            key = f"{release_id}:{stage_id}"
             if already_handled(state, key):
                 continue
             # Announce only a public release with uploaded plugin and checksum assets.
@@ -199,8 +225,6 @@ def candidates(api, metadata, state, now):
             names = {a["name"] for a in assets}
             if not any(n.endswith(".jar") and n + ".sha256" in names for n in names):
                 continue
-            if not isinstance(release.get("prerelease"), bool):
-                raise ValueError("Missing release stage metadata")
             stage = "Prerelease" if release["prerelease"] else "Release"
             tag = str(release["tag_name"])
             link = root + "/releases/tag/" + urllib.parse.quote(tag, safe="")
@@ -304,7 +328,7 @@ def main():
     store = StateStore(api)
     state = store.state
     if not state.get("started_at"):
-        state.update(started_at=stamp(now), deliveries={}, health={})
+        initialize_baseline(state, metadata, now)
         # Baseline is intentionally silent. Future polls announce only newer events.
         if args.mode == "monitor":
             store.save()
