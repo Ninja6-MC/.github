@@ -2,13 +2,8 @@
   <img src="../assets/ninja6-primary-256.png" width="128" alt="Ninja6">
 </p>
 
-<!-- assets/ is a copy, kept current by the Sync Assets workflow in Ninja6-MC/brand.
-     It is a copy rather than a link because `brand` is private and a sibling repo:
-     raw.githubusercontent.com 404s for a private repo, and relative paths do not cross
-     repository boundaries. See brand/ICON_PLAN.md section 1.
-
-     If the org profile page ever fails to render this relative path, the safe fallback
-     is the absolute raw URL of THIS repo, which is public:
+<!-- Shared marks are managed by the asset-sync pipeline; do not edit assets/.
+     If the relative image path fails to render, use this repository's public URL:
      https://raw.githubusercontent.com/Ninja6-MC/.github/main/assets/ninja6-primary-256.png -->
 
 <h1 align="center">Ninja6</h1>
@@ -21,13 +16,16 @@
 
 ## Projects
 
-| | Project | What it does | Status |
-|:---:|---|---|---|
-| <a href="https://github.com/Ninja6-MC/SpiralGenesis"><img src="https://raw.githubusercontent.com/Ninja6-MC/SpiralGenesis/main/docs/assets/icon-64.png" width="32" height="32" alt="SpiralGenesis"></a> | [**SpiralGenesis**](https://github.com/Ninja6-MC/SpiralGenesis) | Spiral-pattern spawn distribution - every player gets their own plot, allocated asynchronously | Released |
-| <a href="https://github.com/Ninja6-MC/SessionPulse"><img src="https://raw.githubusercontent.com/Ninja6-MC/SessionPulse/main/docs/assets/icon-64.png" width="32" height="32" alt="SessionPulse"></a> | [**SessionPulse**](https://github.com/Ninja6-MC/SessionPulse) | Session health reminders, playtime tracking, and optional session limits | Early scaffolding |
-| <a href="https://github.com/Ninja6-MC/AntiSpeedrun"><img src="https://raw.githubusercontent.com/Ninja6-MC/AntiSpeedrun/main/docs/assets/icon-64.png" width="32" height="32" alt="AntiSpeedrun"></a> | [**AntiSpeedrun**](https://github.com/Ninja6-MC/AntiSpeedrun) | Unified anti-speedrun, dimension progression gates, anti-cheese, and multi-dragon combat scaling | In development |
-| <a href="https://github.com/Ninja6-MC/TextureStudio"><img src="https://raw.githubusercontent.com/Ninja6-MC/TextureStudio/main/docs/assets/icon-64.png" width="32" height="32" alt="TextureStudio"></a> | [**TextureStudio**](https://github.com/Ninja6-MC/TextureStudio) | Resolution-independent 3D vector texture studio and resource pack compiler | In development |
-| <a href="https://github.com/Ninja6-MC/Keyframe"><img src="https://raw.githubusercontent.com/Ninja6-MC/Keyframe/main/docs/assets/icon-64.png" width="32" height="32" alt="Keyframe"></a> | [**Keyframe**](https://github.com/Ninja6-MC/Keyframe) | Cinematic trailer aesthetic for Minecraft, rendered in infinite vector clarity | In development |
+| | Project | What it does | Release stage | Latest published version |
+|:---:|---|---|---|---|
+| <a href="https://github.com/Ninja6-MC/SpiralGenesis"><img src="https://raw.githubusercontent.com/Ninja6-MC/SpiralGenesis/main/docs/assets/icon-64.png" width="32" height="32" alt="SpiralGenesis"></a> | [**SpiralGenesis**](https://github.com/Ninja6-MC/SpiralGenesis) | Spiral-pattern spawn distribution - every player gets their own plot, allocated asynchronously | Public alpha | [v1.0.0-alpha.2](https://github.com/Ninja6-MC/SpiralGenesis/releases/tag/v1.0.0-alpha.2) |
+| <a href="https://github.com/Ninja6-MC/SessionPulse"><img src="https://raw.githubusercontent.com/Ninja6-MC/SessionPulse/main/docs/assets/icon-64.png" width="32" height="32" alt="SessionPulse"></a> | [**SessionPulse**](https://github.com/Ninja6-MC/SessionPulse) | Session health reminders, playtime tracking, and optional session limits | Release candidate | [v0.1.0-rc.1](https://github.com/Ninja6-MC/SessionPulse/releases/tag/v0.1.0-rc.1) |
+| <a href="https://github.com/Ninja6-MC/AntiSpeedrun"><img src="https://raw.githubusercontent.com/Ninja6-MC/AntiSpeedrun/main/docs/assets/icon-64.png" width="32" height="32" alt="AntiSpeedrun"></a> | [**AntiSpeedrun**](https://github.com/Ninja6-MC/AntiSpeedrun) | Dimension and item progression gates, player guidance, and early Eye of Ender blocking | Public prerelease | [v0.1.1](https://github.com/Ninja6-MC/AntiSpeedrun/releases/tag/v0.1.1) |
+| <a href="https://github.com/Ninja6-MC/TextureStudio"><img src="https://raw.githubusercontent.com/Ninja6-MC/TextureStudio/main/docs/assets/icon-64.png" width="32" height="32" alt="TextureStudio"></a> | [**TextureStudio**](https://github.com/Ninja6-MC/TextureStudio) | 3D SVG texture studio and multi-resolution resource pack compiler | In development | No GitHub release |
+| <a href="https://github.com/Ninja6-MC/Keyframe"><img src="https://raw.githubusercontent.com/Ninja6-MC/Keyframe/main/docs/assets/icon-64.png" width="32" height="32" alt="Keyframe"></a> | [**Keyframe**](https://github.com/Ninja6-MC/Keyframe) | Minecraft resource pack authored in SVG for a cinematic trailer aesthetic | In development | No GitHub release |
+
+Published plugin versions above are prereleases for testing; they are not stable releases.
+See each project's README for documentation, supported versions, and installation.
 
 ## How we work
 
