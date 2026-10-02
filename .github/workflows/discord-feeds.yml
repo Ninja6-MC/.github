@@ -3,6 +3,7 @@ name: Discord Feeds
 on:
   schedule:
     - cron: '7,22,37,52 * * * *'
+    - cron: '0 9 * * 1'
   workflow_dispatch:
     inputs:
       mode:
@@ -20,7 +21,7 @@ concurrency:
 
 jobs:
   monitor:
-    if: github.repository == 'Ninja6-MC/.github' && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || inputs.mode == 'monitor')
+    if: github.repository == 'Ninja6-MC/.github' && github.ref == 'refs/heads/main' && (github.event.schedule == '7,22,37,52 * * * *' || inputs.mode == 'monitor')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -39,7 +40,7 @@ jobs:
         run: python3 scripts/discord_feeds.py --mode monitor
 
   prepare:
-    if: github.repository == 'Ninja6-MC/.github' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.mode != 'monitor'
+    if: github.repository == 'Ninja6-MC/.github' && github.ref == 'refs/heads/main' && (github.event.schedule == '0 9 * * 1' || (github.event_name == 'workflow_dispatch' && inputs.mode != 'monitor'))
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -49,7 +50,7 @@ jobs:
       - name: Prepare a preview or digest without sending
         env:
           GH_TOKEN: ${{ github.token }}
-          FEED_MODE: ${{ inputs.mode }}
+          FEED_MODE: ${{ github.event_name == 'schedule' && 'digest' || inputs.mode }}
         run: python3 scripts/discord_feeds.py --mode "$FEED_MODE" --output discord-feed-output.txt
       - name: Retain preview or digest for manual review
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

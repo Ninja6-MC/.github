@@ -89,13 +89,15 @@ To reconcile an unresolved entry:
    signed-off identity. Dispatch `preview`, re-enable the workflow, then dispatch
    `monitor`. Uncertain entries cannot be resolved by rerunning alone.
 
-## Manual weekly draft
+## Weekly draft, manually posted
 
-Dispatch `digest` to produce a seven-day template-based draft in the
+Every Monday at 09:00 UTC, a read-only job prepares a seven-day template-based
+draft. Dispatch `digest` to prepare one on demand. Both retain the draft in the
 `discord-feed-draft` artifact, retained for seven days. It includes public
 successful-build counts, published-release counts, and source links. It does not
 summarize arbitrary release bodies or commit text and never posts to Discord.
-Staff review and manually post the digest. There is no automatic announcement
+Staff review and manually post the digest. Scheduled draft preparation cannot
+send messages and has no Discord secrets. There is no automatic announcement
 or external-news feed.
 
 ## Verification
