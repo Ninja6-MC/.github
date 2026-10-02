@@ -77,6 +77,16 @@ git push origin vX.Y.Z
      candidate and how a partial or uncertain publication is reconciled. Include
      pre-release/latest flag rules. -->
 
+### Step 6: Update the public project directory
+
+After publication is verified, open a documentation PR against the organisation's
+[profile README](https://github.com/Ninja6-MC/.github/blob/main/profile/README.md).
+Update this project's latest published version link and release stage from the
+published GitHub release metadata. A release marked as a pre-release stays labelled
+as alpha, beta, release candidate or public prerelease even when its tag has no suffix.
+Keep the project description limited to implemented capabilities. Do not update the
+profile for an unpublished candidate or a partial release awaiting reconciliation.
+
 ## 4. Repository Secrets
 
 <!-- Name each secret and what it reaches. If there are none - the workflow uses only its
