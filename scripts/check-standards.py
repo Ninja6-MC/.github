@@ -135,10 +135,10 @@ def known_rule_ids(register_dir):
     """Every rule ID the register actually assigns.
 
     Parsed out of standards/README.md rather than restated here, because the register is
-    the single source of truth and a second copy would drift. `N6-CMD-*` is reserved
-    but unassigned; it carries a literal asterisk in the register and so cannot match
-    this pattern, which is exactly the behaviour wanted - citing one must be an error
-    until that area is populated.
+    the single source of truth and a second copy would drift. `CMD` is a reserved
+    area with no assigned rule, so no `N6-CMD-NN` ID appears for this pattern to
+    collect, which is exactly the behaviour wanted - citing one must be an error until
+    that area is populated.
     """
     path = os.path.join(register_dir, "README.md")
     try:
