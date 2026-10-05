@@ -21,8 +21,8 @@ Renaming `release.yml` does not exempt anything, and a repository that has never
 is still covered the moment it *could*.
 
 A repository that publishes nothing is not covered and does not need either file. It may
-carry them anyway — `SessionPulse` documents a process it has not yet used, which is
-foresight rather than a violation.
+carry them anyway — documenting a process before the first release is foresight
+rather than a violation.
 
 ### Why both files
 
@@ -50,7 +50,7 @@ in both `release.yml` files and in the template.
 That gate is deliberately **not** part of `N6-REL-01`. It is a property of a workflow
 rather than of a repository, the existing implementations differ in what they do with
 the notes afterwards, and a rule asserting a specific script shape would be asserting more
-than has been agreed. Three repositories currently publish releases;
+than has been agreed. Release workflows exist in several repositories;
 [.github#29](https://github.com/Ninja6-MC/.github/issues/29) tracks whether
 this gate should become a rule.
 
@@ -169,5 +169,7 @@ The standards checker rejects unregistered exception IDs, so those entries
 cannot land before this rule. A new release publisher created after this rule
 lands is covered from its first publication. The staged date and an exception
 record the temporary gap; neither makes an unverified release safe to publish.
-`AntiSpeedrun`, `TextureStudio`, `brand` and `.github` have no release-artifact
-publisher at this point and need no `N6-REL-03` exception.
+`TextureStudio`, `brand` and `.github` have no release-artifact publisher at this
+point and need no `N6-REL-03` exception. `AntiSpeedrun` publishes GitHub Releases
+through a gated `release` environment workflow, with Modrinth and Hangar publishing
+planned; it is not in the staged list above.
