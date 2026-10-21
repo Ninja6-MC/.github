@@ -1,6 +1,6 @@
 # Release standards
 
-Normative text for `N6-REL-01` and `N6-REL-03`. The register is in
+Normative text for `N6-REL-01`, `N6-REL-03` and `N6-REL-04`. The register is in
 [`README.md`](README.md).
 
 ---
@@ -173,3 +173,61 @@ record the temporary gap; neither makes an unverified release safe to publish.
 point and need no `N6-REL-03` exception. `AntiSpeedrun` publishes GitHub Releases
 through a gated `release` environment workflow, with Modrinth and Hangar publishing
 planned; it is not in the staged list above.
+
+---
+
+## `N6-REL-04` - Modrinth publishing is upload-only
+
+A repository that publishes to Modrinth does not feature or unfeature versions. The
+publish uploads the new version and edits nothing that already exists.
+
+### Publish step
+
+The Modrinth publishing step sets both of these `mc-publish` inputs:
+
+```yaml
+modrinth-featured: false
+modrinth-unfeature-mode: none
+```
+
+A repository that publishes through another tool sets that tool's equivalent, so the
+publish performs no feature or unfeature call on Modrinth.
+
+### Token scopes
+
+The `MODRINTH_TOKEN` secret holds exactly these scopes and no others:
+
+* Read projects (`PROJECT_READ`)
+* Read versions (`VERSION_READ`)
+* Create versions (`VERSION_CREATE`)
+
+It never holds Write versions, any delete scope, or anything broader. The repository's
+`RELEASE_PROCESS.md` lists the same scopes, so the token can be recreated correctly.
+
+### Why
+
+A publish must not edit existing versions after an upload. A post-upload edit step needs a
+broader token, and it can fail after the new version is already live. That leaves a partial
+publication that a rerun cannot complete, because the version it would upload now exists.
+This happened on the `SpiralGenesis` 1.0.0-beta.2 release: `mc-publish`'s default
+unfeature step received a 401 after the upload had succeeded.
+
+Featuring is cosmetic. Least privilege and an upload-only publish win over it. A
+maintainer who wants a version featured does that on Modrinth, outside the release
+workflow.
+
+### Enforcement
+
+The register marks this rule **reviewed**. The shared `Standards` check inspects file
+presence and file contents of fixed shape; whether a workflow publishes to Modrinth, and
+through which tool, is not something it detects today, and a scan keyed on one action's
+input names would miss any other publisher. A check scoped to that one action would also
+say nothing about the token, whose scopes live in Modrinth and not in the repository.
+Reviewers check the publish step's inputs and the scopes documented in
+`RELEASE_PROCESS.md`.
+
+### Rollout
+
+`SessionPulse` already complies. `SpiralGenesis` is brought into line by its own pull
+request. A repository that has not yet done so records a `transitional` `N6-REL-04`
+exception in its `.github/standards-exceptions.yml` until it complies.
