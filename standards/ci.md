@@ -88,6 +88,7 @@ check** from the one that **hosts** them:
 | `TextureStudio` | `dco / Check Sign-off`, `standards / Check Standards` |
 | `Keyframe` | `dco / Check Sign-off`, `standards / Check Standards` |
 | `AntiSpeedrun` | `Build and Test`, `dco / Check Sign-off`, `standards / Check Standards` |
+| `NinjaArena` | `Build and Test`, `dco / Check Sign-off`, `standards / Check Standards` |
 
 `.github` reports both names **unprefixed** because it *hosts* the two reusable workflows
 rather than calling them, so there is no calling job to prefix with. Every other

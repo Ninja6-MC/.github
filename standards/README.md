@@ -221,8 +221,9 @@ Adoption order, and why:
 5. **`TextureStudio`** — adopted 2026-08-25, `exceptions: []`.
 6. **`Keyframe`** — adopted 2026-08-25, `exceptions: []`.
 7. **`AntiSpeedrun`** — adopted with `exceptions: []`.
+8. **`NinjaArena`** — adopted 2026-10-26 with its scaffold, `exceptions: []`.
 
-**Adoption is complete.** All seven repositories carry an exceptions file and are measured
+**Adoption is complete.** All eight repositories carry an exceptions file and are measured
 by the `Standards` workflow.
 
 The gaps this section originally listed are all closed: `SpiralGenesis` and `SessionPulse`
