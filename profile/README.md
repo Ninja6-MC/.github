@@ -32,7 +32,7 @@ See each project's README for documentation, supported versions, and installatio
 
 Every repo uses [Conventional Commits](https://www.conventionalcommits.org/),
 squash-merges through a protected `main`, and requires a `Signed-off-by` line on every
-commit. The plugins target Java 21 and Paper's async API. The details are in
+commit. The plugins build on Paper's async API. The details are in
 [CONTRIBUTING.md](https://github.com/Ninja6-MC/.github/blob/main/CONTRIBUTING.md).
 
 Bug reports and feature requests are welcome on the relevant project's issue tracker.
