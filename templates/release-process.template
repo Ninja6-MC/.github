@@ -75,7 +75,10 @@ git push origin vX.Y.Z
      List destination order and the check for already-published bytes at each
      destination. Describe retry of missing destinations from the retained
      candidate and how a partial or uncertain publication is reconciled. Include
-     pre-release/latest flag rules. -->
+     pre-release/latest flag rules. Under N6-REL-05, describe the publisher's
+     dispatch inputs, which destinations need an owner-inventory absence attestation
+     and how to inspect each one, the preflight that runs before the first public
+     write, and how to retry a single destination with a new dispatch. -->
 
 ### Step 6: Update the public project directory
 
