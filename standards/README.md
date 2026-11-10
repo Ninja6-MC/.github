@@ -92,6 +92,7 @@ is real or the address reachable.
 | `N6-REL-01` | A repository whose workflows can publish a release carries `RELEASE_PROCESS.md` and `CHANGELOG.md` | [`releases.md`](releases.md) | automatic³ |
 | `N6-REL-03` | Public release artifacts are built once, tested as candidate bytes, approved, and promoted unchanged | [`releases.md`](releases.md) | reviewed⁴ |
 | `N6-REL-04` | A repository that publishes to Modrinth does not feature or unfeature versions: the publish step turns both off and `MODRINTH_TOKEN` holds only read projects, read versions and create versions | [`releases.md`](releases.md) | reviewed⁵ |
+| `N6-REL-05` | Release destinations are preflighted before the first public write, absence is attested per dispatch and never stored, and each destination publishes in its own gated job | [`releases.md`](releases.md) | reviewed⁶ |
 
 ³ Checked by the `Standards` workflow in this repository
 ([`.github/workflows/standards.yml`](../.github/workflows/standards.yml), logic in
@@ -114,6 +115,11 @@ checks described in `releases.md` at runtime; reviewers verify that wiring.
 documented in `RELEASE_PROCESS.md` for exactly `PROJECT_READ`, `VERSION_READ` and
 `VERSION_CREATE`. The shared Standards check does not detect which repositories publish to
 Modrinth, and the token's real scopes are visible only on Modrinth.
+
+⁶ Review the publisher's dispatch inputs, the run-attempt and concurrency guards beside
+each upload, the candidate-run provenance check and the cross-destination credential
+preflight. Whether a registry hides versions from its API, and whether an attestation was
+true, are runtime facts the Standards check cannot see.
 
 The workflow is exception-aware: a failure whose rule has an entry in the repository's
 `standards-exceptions.yml` is reported as a notice and does not fail the run. `N6-REPO-05`

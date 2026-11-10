@@ -1,6 +1,6 @@
 # Release standards
 
-Normative text for `N6-REL-01`, `N6-REL-03` and `N6-REL-04`. The register is in
+Normative text for `N6-REL-01`, `N6-REL-03`, `N6-REL-04` and `N6-REL-05`. The register is in
 [`README.md`](README.md).
 
 ---
@@ -141,6 +141,8 @@ expired candidate, incomplete test record, mismatched tag, or conflicting
 published artifact stops the workflow for maintainer reconciliation. The
 repository's release process documents retention duration, destination order,
 idempotent retry method and how a partial release is reconciled.
+A publisher with several destinations, or one that cannot prove absence, also
+follows `N6-REL-05` for attestation, preflight and per-destination retry.
 
 ### Enforcement
 
@@ -231,3 +233,96 @@ Reviewers check the publish step's inputs and the scopes documented in
 `SessionPulse` already complies. `SpiralGenesis` is brought into line by its own pull
 request. A repository that has not yet done so records a `transitional` `N6-REL-04`
 exception in its `.github/standards-exceptions.yml` until it complies.
+
+---
+
+## `N6-REL-05` - destinations are preflighted, attested per run and published independently
+
+This rule applies to every workflow covered by `N6-REL-03` that publishes to more than
+one destination, or to any destination whose absence it cannot prove from its API. It
+refines the retry part of `N6-REL-03`; it does not replace any of its checks.
+
+### Two workflows
+
+The candidate workflow builds, verifies and retains the candidate under `N6-REL-03`, and
+publishes nothing. A separate publisher workflow is started by `workflow_dispatch` on the
+release tag and takes, as inputs, the tag, the candidate run ID, the destinations to
+publish in this run (a comma-separated list, defaulting to all declared destinations), and
+one boolean absence attestation per destination that needs one. Every publisher job runs
+only when `github.ref` is that tag, and the tag input is validated against the release tag
+pattern before it is used anywhere, including the concurrency group.
+
+The publisher accepts a candidate run only when it is a successful run of the repository's
+own candidate workflow, for this tag and the tag's commit, and it pins the attempt whose
+artifacts it uses. Retain candidates for the repository maximum (90 days on GitHub-hosted
+artifact storage). After expiry nothing is rebuilt for that tag: a missing destination is
+either published from already-public release assets whose digests match the retained
+manifest, or recorded in `RELEASE_PROCESS.md` as abandoned for that tag.
+
+### Absence attestation
+
+Some registries do not return every version the owner can see. A version list may omit
+drafts, unlisted or scheduled versions even with an owner token, and a deleted version may
+still block its number. An omitted result is not proof of absence. Where a destination
+cannot prove absence, the publisher writes to it only when the maintainer has inspected the
+owner inventory for this exact version and set that destination's attestation input to
+true for this run. A repository may drop the attestation for a destination only by
+recording, in `RELEASE_PROCESS.md`, evidence that its authenticated lookup returns every
+hidden and deleted state for that registry.
+
+An attestation belongs to one dispatch and one candidate:
+
+* It is never stored in a repository, environment or organisation variable or secret, or
+  in any file that outlives the run.
+* It is needed only for a destination that is absent. A destination already complete with
+  matching bytes and metadata is verified and skipped without one.
+* The publisher refuses a true attestation on any run attempt other than the first. The
+  check runs immediately before each upload, in every job that uploads, because re-running
+  a single job reuses the outputs of the jobs it depends on.
+* The publisher refuses a true attestation while another publisher run for the same tag
+  is in progress, or when one finished after this run was created, since that run may
+  have written a version the attestation did not see. Every workflow able to write release
+  versions, recovery workflows included, shares the publisher's concurrency group.
+
+### Preflight before the first public write
+
+A first job needs no approval and no publishing credentials. It verifies the candidate
+run, the candidate and its evidence, rejects a missing attestation for any selected
+destination that public lookups do not show as complete, and runs every check that needs
+no secret, such as project visibility or a dry run of the upload. Its failures appear
+before a maintainer is asked to approve.
+
+Each publish job then runs, before writing anything, the credential checks (token present,
+upload permission, project ready to receive versions) for **every destination selected in
+this dispatch**, not only its own. A missing or wrong credential, or a project that cannot
+yet accept a version, stops every destination before the first public write. Publishing to
+only some destinations is therefore always an explicit choice made in the dispatch inputs,
+never the side effect of a known, checkable prerequisite.
+
+### One job per destination
+
+Each destination publishes in its own job. Every publish job, a GitHub-only one included,
+uses the protected `release` environment and depends on the same preflight job, so all of
+them wait at the gate together and one approval covers the run. A failure while uploading
+to one destination, such as a registry outage, does not stop the others. That destination
+is retried later by a new dispatch that selects only it, with a fresh attestation when it
+is still absent. A step that changes shared state rather than adding a version, such as
+syncing a project page, runs only when the tag is the newest public version on its channel.
+
+### Enforcement
+
+The register marks this rule **reviewed**. Reviewers check the dispatch inputs, the
+attempt and concurrency guards beside each upload, the candidate-run provenance check, the
+cross-destination credential preflight and the absence of any persistent attestation.
+Tests in the repository cover the refusal paths: a true attestation on a later attempt, a
+missing attestation for an absent destination, a candidate run from another tag or
+workflow, and a concurrent publisher run.
+
+### Rollout
+
+`N6-REL-05` becomes applicable on **2027-01-31**. Until a repository's publisher complies,
+it records a `transitional` `N6-REL-05` exception in its `.github/standards-exceptions.yml`
+that links its implementation issue. A release publisher created after this rule lands is
+covered from its first publication. A GitHub-only publisher meets the attestation part
+trivially, since GitHub Releases can be checked directly, and needs only the workflow
+shape and guards.
