@@ -316,17 +316,33 @@ uses the protected `release` environment and depends on the same preflight job, 
 them wait at the gate together and one approval covers the run. A failure while uploading
 to one destination, such as a registry outage, does not stop the others. That destination
 is retried later by a new dispatch that selects only it, with a fresh attestation when it
-is still absent. A step that changes shared state rather than adding a version, such as
-syncing a project page, runs only when the tag is the newest public version on its channel.
+is still absent.
+
+### Shared state follows the highest stable version
+
+A step that changes shared state rather than adding a version, such as syncing a project
+page or moving the GitHub "latest" release marker, writes only for the tag that owns that
+state. The owner is the highest stable version the repository has published, or, while no
+stable version exists, the highest pre-release. A project page is read by people deciding
+what to install, and most install stable, so a pre-release never replaces a stable
+version's page, and a stable hotfix published after a newer pre-release still owns it.
+A release never moves shared state back to a lower version.
+
+The step checks ownership again immediately before it writes, not only in the preflight
+job. Every such step, for every tag of the repository, runs in one concurrency group that
+is not keyed on the tag, so two tags published at the same time cannot both decide they
+own the state. A tag that does not own the state skips the step and says so in the run.
 
 ### Enforcement
 
 The register marks this rule **reviewed**. Reviewers check the dispatch inputs, the
 attempt and concurrency guards beside each upload, the candidate-run provenance check, the
-cross-destination credential preflight and the absence of any persistent attestation.
+cross-destination credential preflight, the shared-state ownership check and its
+concurrency group, and the absence of any persistent attestation.
 Tests in the repository cover the refusal paths: a true attestation on a later attempt, a
 missing attestation for an absent destination, a candidate run from another tag or
-workflow, and a concurrent publisher run.
+workflow, a concurrent publisher run, and a shared-state write for a tag that does not own
+it, a stable hotfix below a newer pre-release included.
 
 ### Rollout
 
