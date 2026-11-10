@@ -322,11 +322,12 @@ is still absent.
 
 A step that changes shared state rather than adding a version, such as syncing a project
 page or moving the GitHub "latest" release marker, writes only for the tag that owns that
-state. The owner is the highest stable version the repository has published, or, while no
-stable version exists, the highest pre-release. A project page is read by people deciding
-what to install, and most install stable, so a pre-release never replaces a stable
-version's page, and a stable hotfix published after a newer pre-release still owns it.
-A release never moves shared state back to a lower version.
+state on that destination. The owner is the highest stable version published on that
+destination, or, while it has no stable version, the highest pre-release. A project page
+is read by people deciding what to install, and most install stable, so a pre-release
+never replaces a stable version's page, and a stable hotfix published after a newer
+pre-release still owns it. GitHub never marks a pre-release as latest, so the "latest"
+marker follows only stable versions and stays unset until the first one.
 
 The step checks ownership again immediately before it writes, not only in the preflight
 job. Every such step, for every tag of the repository, runs in one concurrency group that
@@ -342,7 +343,8 @@ concurrency group, and the absence of any persistent attestation.
 Tests in the repository cover the refusal paths: a true attestation on a later attempt, a
 missing attestation for an absent destination, a candidate run from another tag or
 workflow, a concurrent publisher run, and a shared-state write for a tag that does not own
-it, a stable hotfix below a newer pre-release included.
+it, such as a pre-release published while a stable version exists, or a stable hotfix
+below a newer stable version.
 
 ### Rollout
 
