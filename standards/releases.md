@@ -249,15 +249,17 @@ publishes nothing. A separate publisher workflow is started by `workflow_dispatc
 release tag and takes, as inputs, the tag, the candidate run ID, the destinations to
 publish in this run (a comma-separated list, defaulting to all declared destinations), and
 one boolean absence attestation per destination that needs one. Every publisher job runs
-only when `github.ref` is that tag, and the tag input is validated against the release tag
-pattern before it is used anywhere, including the concurrency group.
+only when `github.ref` is that tag and the tag input matches the release tag pattern. The
+concurrency group is keyed on `github.ref` rather than on the input, because a
+workflow-level group is evaluated when the run is queued, before any step can validate it.
 
 The publisher accepts a candidate run only when it is a successful run of the repository's
 own candidate workflow, for this tag and the tag's commit, and it pins the attempt whose
 artifacts it uses. Retain candidates for the repository maximum (90 days on GitHub-hosted
-artifact storage). After expiry nothing is rebuilt for that tag: a missing destination is
-either published from already-public release assets whose digests match the retained
-manifest, or recorded in `RELEASE_PROCESS.md` as abandoned for that tag.
+artifact storage) so a single destination can still be retried weeks later. Expiry follows
+`N6-REL-03`: an expired candidate stops the publisher, nothing is rebuilt for that tag, and a
+destination still missing is recorded in `RELEASE_PROCESS.md` as not published for that tag
+and reached by the next release instead.
 
 ### Absence attestation
 
@@ -292,12 +294,20 @@ destination that public lookups do not show as complete, and runs every check th
 no secret, such as project visibility or a dry run of the upload. Its failures appear
 before a maintainer is asked to approve.
 
-Each publish job then runs, before writing anything, the credential checks (token present,
-upload permission, project ready to receive versions) for **every destination selected in
-this dispatch**, not only its own. A missing or wrong credential, or a project that cannot
-yet accept a version, stops every destination before the first public write. Publishing to
-only some destinations is therefore always an explicit choice made in the dispatch inputs,
-never the side effect of a known, checkable prerequisite.
+Each publish job then runs, before writing anything, the credential checks that can be made
+without writing for **every destination selected in this dispatch**, not only its own: the
+token is present and accepted, the project is readable, and it is ready to receive versions,
+plus upload permission wherever the registry exposes it. A failure stops every destination
+before the first public write, so publishing to only some destinations is an explicit choice
+made in the dispatch inputs, never the side effect of a prerequisite that could have been
+checked.
+
+Some prerequisites can only be proven by the upload itself. A token limited to the
+`N6-REL-04` scopes cannot show whether it holds create-version permission, since its scopes
+are visible only on Modrinth. `RELEASE_PROCESS.md` lists each such prerequisite and the
+destination it belongs to. A failure there is a failure of that destination alone: the
+others still publish, and that destination is retried by a new dispatch once the
+prerequisite is fixed.
 
 ### One job per destination
 
