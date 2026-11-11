@@ -1,8 +1,7 @@
 # Release standards
 
 Normative text for `N6-REL-01`, `N6-REL-03`, `N6-REL-04`, `N6-REL-05` and `N6-REL-06`. The
-register is in
-[`README.md`](README.md).
+register is in [`README.md`](README.md).
 
 ---
 
@@ -390,19 +389,26 @@ judged by the versions public on Modrinth. For that tag:
    there and nobody is asked.
 2. When they differ, a confirm job waits on its own protected environment, with the
    maintainer as required reviewer and no secrets. Before the gate, the run summary names
-   the file and the tag to paste from and links to it. After approval the job reads the
-   body again and fails, with a short summary of the difference, unless it now matches.
-   The remedy for a failure is to fix the paste and re-run that job.
+   the file and the tag to paste from and links to it, and says that a newer owner found
+   at approval time replaces it.
+3. After approval the job checks ownership again, because the paste is the write and the
+   owner can change while the job waits. It then reads the body and compares it with the
+   file at the tag that owns the page now. If that is another tag, the job says this tag
+   was superseded and names the owner. It fails, with a short summary of the difference,
+   unless the body matches the owner's file. The remedy for a failure is to paste the file
+   it names and re-run that job.
 
-The confirm job is not in the shared-state concurrency group: it writes nothing, so a
-pending approval never holds up another tag's release.
+The confirm job is not in the shared-state concurrency group: it writes nothing, and the
+check after approval makes the order in which approvals arrive irrelevant, so a pending
+approval never holds up another tag's release.
 
 ### Enforcement
 
 The register marks this rule **reviewed**. Reviewers check the description check in CI,
 the owner rule and secret-free check job in the publisher, the environment the confirm job
 waits on, and the read-back after approval. Tests in the repository cover a matching body,
-a differing body, a difference in whitespace only, and a tag that does not own the page.
+a differing body, a difference in whitespace only, a tag that does not own the page, and
+a tag superseded while its confirm job waited, checked against the new owner's file.
 
 ### Rollout
 
