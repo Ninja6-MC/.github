@@ -1,7 +1,7 @@
 # Release standards
 
-Normative text for `N6-REL-01`, `N6-REL-03`, `N6-REL-04` and `N6-REL-05`. The register is in
-[`README.md`](README.md).
+Normative text for `N6-REL-01`, `N6-REL-03`, `N6-REL-04`, `N6-REL-05` and `N6-REL-06`. The
+register is in [`README.md`](README.md).
 
 ---
 
@@ -354,3 +354,66 @@ that links its implementation issue. A release publisher created after this rule
 covered from its first publication. A GitHub-only publisher meets the attestation part
 trivially, since GitHub Releases can be checked directly, and needs only the workflow
 shape and guards.
+
+---
+
+## `N6-REL-06` - the Modrinth project description is generated, pasted by hand and confirmed
+
+A repository that publishes to Modrinth keeps its Modrinth project description in the
+repository and has its publisher confirm, as the last step of a release, that Modrinth
+shows it.
+
+### Source
+
+The description is a committed file generated from `README.md` by a script in the
+repository, and CI fails when the file is out of date. `RELEASE_PROCESS.md` names the file
+and the script. The text on Modrinth is only ever changed by pasting that file, so the
+repository holds its history and review, and Modrinth holds a copy.
+
+### Why it is pasted by hand
+
+`N6-REL-04` limits `MODRINTH_TOKEN` to reading projects and creating versions. Writing the
+project body needs a write scope that would also let the token change everything else on
+the project, so no workflow writes it. The maintainer pastes it, and the publisher checks
+the result.
+
+### Publisher step
+
+The step changes shared state, so it follows "Shared state follows the highest stable
+version" under `N6-REL-05`: it runs only for the tag that owns the Modrinth project page,
+judged by the versions public on Modrinth. For that tag:
+
+1. A check job with no secrets and no environment reads the public project body from the
+   Modrinth API and compares it with the committed file at the tag. The comparison
+   normalises line endings and trailing whitespace only. When they match, the step ends
+   there and nobody is asked.
+2. When they differ, a confirm job waits on its own protected environment, with the
+   maintainer as required reviewer and no secrets. Before the gate, the run summary names
+   the file and the tag to paste from and links to it, and says that a newer owner found
+   at approval time replaces it.
+3. After approval the job checks ownership again, because the paste is the write and the
+   owner can change while the job waits. It then reads the body and compares it with the
+   file at the tag that owns the page now. If that is another tag, the job says this tag
+   was superseded and names the owner. It fails, with a short summary of the difference,
+   unless the body matches the owner's file. The remedy for a failure is to paste the file
+   it names and re-run that job.
+
+The confirm job is not in the shared-state concurrency group: it writes nothing, and the
+check after approval makes the order in which approvals arrive irrelevant, so a pending
+approval never holds up another tag's release.
+
+### Enforcement
+
+The register marks this rule **reviewed**. Reviewers check the description check in CI,
+the owner rule and secret-free check job in the publisher, the environment the confirm job
+waits on, and the read-back after approval. Tests in the repository cover a matching body,
+a differing body, a difference in whitespace only, a tag that does not own the page, and
+a tag superseded while its confirm job waited, checked against the new owner's file.
+
+### Rollout
+
+`N6-REL-06` becomes applicable on **2027-01-31**, with `N6-REL-05`. A repository that does
+not comply by then records a `transitional` `N6-REL-06` exception in its
+`.github/standards-exceptions.yml` that links its implementation issue. A repository that
+starts publishing to Modrinth after this rule lands is covered from its first publication.
+Repositories that do not publish to Modrinth are not covered.
