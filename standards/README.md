@@ -94,6 +94,7 @@ is real or the address reachable.
 | `N6-REL-04` | A repository that publishes to Modrinth does not feature or unfeature versions: the publish step turns both off and `MODRINTH_TOKEN` holds only read projects, read versions and create versions | [`releases.md`](releases.md) | reviewed⁵ |
 | `N6-REL-05` | Release destinations are preflighted before the first public write, absence is attested per dispatch and never stored, and each destination publishes in its own gated job | [`releases.md`](releases.md) | reviewed⁶ |
 | `N6-REL-06` | A repository that publishes to Modrinth generates its project description from `README.md`, checks it in CI, and its publisher confirms after a gated manual paste that Modrinth shows it | [`releases.md`](releases.md) | reviewed⁷ |
+| `N6-REL-07` | Release environments (the `N6-REL-03` `release` environment and the `N6-REL-06` confirm environment) have the maintainer as required reviewer, administrator bypass off, self-review allowed and deployments limited to `v*` tags; the confirm environment holds no secrets | [`releases.md`](releases.md) | reviewed⁸ |
 
 ³ Checked by the `Standards` workflow in this repository
 ([`.github/workflows/standards.yml`](../.github/workflows/standards.yml), logic in
@@ -126,6 +127,10 @@ true, are runtime facts the Standards check cannot see.
 owner check and secret-free comparison job, the environment the confirm job waits on, and
 the read-back after approval. Whether the maintainer pasted the right text is proven only
 by that read-back, at runtime.
+
+⁸ Review each release environment's settings with the verify commands in `releases.md`
+(`can_admins_bypass`, required reviewer, `v*` tag policy, secrets). They live in GitHub,
+not in the repository, so the shared Standards check cannot see them.
 
 The workflow is exception-aware: a failure whose rule has an entry in the repository's
 `standards-exceptions.yml` is reported as a notice and does not fail the run. `N6-REPO-05`
