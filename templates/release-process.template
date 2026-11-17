@@ -72,6 +72,8 @@ git push origin vX.Y.Z
 
 <!-- Name the protected release environment and required approval. Keep publishing
      credentials there and write permissions only in the gated publisher job.
+     Record the environment settings N6-REL-07 requires (maintainer reviewer,
+     administrator bypass off, `v*` tag policy) and the commands that verify them.
      List destination order and the check for already-published bytes at each
      destination. Describe retry of missing destinations from the retained
      candidate and how a partial or uncertain publication is reconciled. Include

@@ -1,7 +1,7 @@
 # Release standards
 
-Normative text for `N6-REL-01`, `N6-REL-03`, `N6-REL-04`, `N6-REL-05` and `N6-REL-06`. The
-register is in [`README.md`](README.md).
+Normative text for `N6-REL-01`, `N6-REL-03`, `N6-REL-04`, `N6-REL-05`, `N6-REL-06` and
+`N6-REL-07`. The register is in [`README.md`](README.md).
 
 ---
 
@@ -101,7 +101,8 @@ that artifact's contents and what gap remains for review.
 
 All public release publication waits behind a protected `release` environment
 with a required maintainer approval, including a GitHub-only release. The
-environment gate applies to the job holding publication permissions and secrets.
+environment's settings are fixed by `N6-REL-07`. The environment gate applies to the job
+holding publication permissions and secrets.
 Publishing credentials other than the job-scoped `GITHUB_TOKEN` must be scoped to
 that protected environment, never provided as equivalent repository or
 organisation secrets to the candidate or verification jobs. Grant write
@@ -388,7 +389,8 @@ judged by the versions public on Modrinth. For that tag:
    normalises line endings and trailing whitespace only. When they match, the step ends
    there and nobody is asked.
 2. When they differ, a confirm job waits on its own protected environment, with the
-   maintainer as required reviewer and no secrets. Before the gate, the run summary names
+   maintainer as required reviewer and no secrets, set up as `N6-REL-07` requires.
+   Before the gate, the run summary names
    the file and the tag to paste from and links to it, and says that a newer owner found
    at approval time replaces it.
 3. After approval the job checks ownership again, because the paste is the write and the
@@ -417,3 +419,103 @@ not comply by then records a `transitional` `N6-REL-06` exception in its
 `.github/standards-exceptions.yml` that links its implementation issue. A repository that
 starts publishing to Modrinth after this rule lands is covered from its first publication.
 Repositories that do not publish to Modrinth are not covered.
+
+---
+
+## `N6-REL-07` - release environments cannot be bypassed
+
+This rule applies to every protected environment a release workflow waits on: the
+`release` environment required by `N6-REL-03`, and the environment the `N6-REL-06`
+confirm job waits on (`modrinth-description` in practice). It sets those environments'
+settings; the other rules say when a job must wait on one.
+
+### Settings
+
+Each such environment has all of these:
+
+* **Required reviewer:** the maintainer.
+* **Administrator bypass off:** `can_admins_bypass` is `false`. Administrators are bound
+  by the environment's protection rules like everyone else.
+* **Self-review allowed:** `prevent_self_review` stays `false`. A repository with one
+  maintainer would otherwise have nobody who may approve the maintainer's own release.
+* **Deployments limited to `v*` tags:** custom deployment policies, with
+  `protected_branches` `false` and `custom_branch_policies` `true`, and a single policy
+  of type `tag` named `v*`. No branch policy and no broader tag policy. `SpiralGenesis`
+  already requires this for its confirm environment, and `SessionPulse` and
+  `AntiSpeedrun` document the same `v*` tag rule for `release`.
+* **No secrets in the `N6-REL-06` confirm environment.** The `release` environment holds
+  the publishing credentials, as `N6-REL-03` requires.
+
+### Why
+
+An approval gate that an administrator can skip is not a gate: with bypass on, the
+maintainer's own account, a compromised token or a mistaken run can deploy without anyone
+approving it. Turning bypass off does not lock the maintainer out. The maintainer is the
+required reviewer, so every release still goes through them, and as an administrator they
+can still edit the environment's settings when the setup has to change.
+
+### Configure and verify
+
+Run these with an account that administers the repository. `<id>` is the maintainer's
+numeric user ID (`gh api users/<login> --jq .id`). The first command creates the
+environment or replaces its settings; the second adds the tag policy, and fails with a
+validation error if that policy already exists, which is safe to ignore; the third
+deletes every other policy, such as a leftover branch policy, so an existing environment
+ends up with the `v*` tag policy alone.
+
+```bash
+OWNER=Ninja6-MC
+REPO=<repo>
+ENV=release            # or the N6-REL-06 confirm environment, e.g. modrinth-description
+
+gh api -X PUT "repos/$OWNER/$REPO/environments/$ENV" --input - <<'JSON'
+{"reviewers":[{"type":"User","id":<id>}],"can_admins_bypass":false,"prevent_self_review":false,"deployment_branch_policy":{"protected_branches":false,"custom_branch_policies":true}}
+JSON
+
+gh api -X POST "repos/$OWNER/$REPO/environments/$ENV/deployment-branch-policies" \
+  -f name='v*' -f type=tag
+
+gh api "repos/$OWNER/$REPO/environments/$ENV/deployment-branch-policies" \
+  --jq '.branch_policies[] | select(.name != "v*" or .type != "tag") | .id' |
+while read -r POLICY_ID; do
+  gh api -X DELETE "repos/$OWNER/$REPO/environments/$ENV/deployment-branch-policies/$POLICY_ID"
+done
+
+gh api "repos/$OWNER/$REPO/environments/$ENV" \
+  --jq '{can_admins_bypass, deployment_branch_policy, rules: [.protection_rules[] | {type, prevent_self_review, reviewers: [.reviewers[]?.reviewer.login]}]}'
+gh api "repos/$OWNER/$REPO/environments/$ENV/deployment-branch-policies" \
+  --jq '[.branch_policies[] | {name, type}]'
+gh api "repos/$OWNER/$REPO/environments/$ENV/secrets" --jq .total_count   # confirm environment: 0
+```
+
+The expected result is `can_admins_bypass` `false`, `custom_branch_policies` `true`, a
+`required_reviewers` rule listing the maintainer with `prevent_self_review` `false`,
+exactly one policy `{"name":"v*","type":"tag"}`, and for the confirm environment zero
+secrets. Reading the secrets list needs a token with environment-secret access; where it
+is unavailable, check the Environments page in the repository settings.
+
+A publisher that can read its own environment may refuse to run when
+`can_admins_bypass` is not exactly `false`, in the way `SessionPulse`'s description
+publisher does. That is a good addition and not required.
+
+### Enforcement
+
+The register marks this rule **reviewed**. Environment settings are not in the
+repository, and the job token cannot read them in every repository, so the shared
+`Standards` check cannot see them. Reviewers run the verify commands above, or read the
+Environments page, for each release environment when a repository adopts the rule and
+when its release workflow changes. `RELEASE_PROCESS.md` records the maintainer setup,
+including the bypass setting.
+
+### Rollout
+
+This is a new rule rather than an amendment to `N6-REL-03` and `N6-REL-06`, because
+`N6-REL-03` already binds its repositories from 2026-10-04 and amending it would put
+compliant repositories in breach without notice (`standards/README.md` §5).
+
+`N6-REL-07` becomes applicable on **2026-12-18**. By that date each repository either
+complies, with the verify commands showing the expected result, or records a
+`transitional` `N6-REL-07` exception in its `.github/standards-exceptions.yml` that links
+its implementation issue and sets a later `revisit_by`; it removes the exception once it
+complies. Repositories that already comply need no exception. A release environment created after this rule lands is covered
+from its creation. Repositories with no protected release environment are not covered.
