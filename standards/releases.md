@@ -459,7 +459,9 @@ can still edit the environment's settings when the setup has to change.
 Run these with an account that administers the repository. `<id>` is the maintainer's
 numeric user ID (`gh api users/<login> --jq .id`). The first command creates the
 environment or replaces its settings; the second adds the tag policy, and fails with a
-validation error if that policy already exists, which is safe to ignore.
+validation error if that policy already exists, which is safe to ignore; the third
+deletes every other policy, such as a leftover branch policy, so an existing environment
+ends up with the `v*` tag policy alone.
 
 ```bash
 OWNER=Ninja6-MC
@@ -467,11 +469,17 @@ REPO=<repo>
 ENV=release            # or the N6-REL-06 confirm environment, e.g. modrinth-description
 
 gh api -X PUT "repos/$OWNER/$REPO/environments/$ENV" --input - <<'JSON'
-{"reviewers":[{"type":"User","id":<id>}],"can_admins_bypass":false,"deployment_branch_policy":{"protected_branches":false,"custom_branch_policies":true}}
+{"reviewers":[{"type":"User","id":<id>}],"can_admins_bypass":false,"prevent_self_review":false,"deployment_branch_policy":{"protected_branches":false,"custom_branch_policies":true}}
 JSON
 
 gh api -X POST "repos/$OWNER/$REPO/environments/$ENV/deployment-branch-policies" \
   -f name='v*' -f type=tag
+
+gh api "repos/$OWNER/$REPO/environments/$ENV/deployment-branch-policies" \
+  --jq '.branch_policies[] | select(.name != "v*" or .type != "tag") | .id' |
+while read -r POLICY_ID; do
+  gh api -X DELETE "repos/$OWNER/$REPO/environments/$ENV/deployment-branch-policies/$POLICY_ID"
+done
 
 gh api "repos/$OWNER/$REPO/environments/$ENV" \
   --jq '{can_admins_bypass, deployment_branch_policy, rules: [.protection_rules[] | {type, prevent_self_review, reviewers: [.reviewers[]?.reviewer.login]}]}'
@@ -505,9 +513,9 @@ This is a new rule rather than an amendment to `N6-REL-03` and `N6-REL-06`, beca
 `N6-REL-03` already binds its repositories from 2026-10-04 and amending it would put
 compliant repositories in breach without notice (`standards/README.md` §5).
 
-`N6-REL-07` becomes applicable on **2026-12-18**. Until each of its environments complies,
-a repository records a `transitional` `N6-REL-07` exception in its
-`.github/standards-exceptions.yml`, with `revisit_by` no later than 2026-12-18, and
-removes it once the verify commands show the expected result. Repositories that already
-comply need no exception. A release environment created after this rule lands is covered
+`N6-REL-07` becomes applicable on **2026-12-18**. By that date each repository either
+complies, with the verify commands showing the expected result, or records a
+`transitional` `N6-REL-07` exception in its `.github/standards-exceptions.yml` that links
+its implementation issue and sets a later `revisit_by`; it removes the exception once it
+complies. Repositories that already comply need no exception. A release environment created after this rule lands is covered
 from its creation. Repositories with no protected release environment are not covered.
